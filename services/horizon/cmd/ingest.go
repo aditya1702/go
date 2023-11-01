@@ -128,7 +128,6 @@ var ingestVerifyRangeCmd = &cobra.Command{
 			NetworkPassphrase:        globalConfig.NetworkPassphrase,
 			HistorySession:           horizonSession,
 			HistoryArchiveURLs:       globalConfig.HistoryArchiveURLs,
-			EnableCaptiveCore:        globalConfig.EnableCaptiveCoreIngestion,
 			CaptiveCoreBinaryPath:    globalConfig.CaptiveCoreBinaryPath,
 			CaptiveCoreConfigUseDB:   globalConfig.CaptiveCoreConfigUseDB,
 			RemoteCaptiveCoreURL:     globalConfig.RemoteCaptiveCoreURL,
@@ -212,7 +211,6 @@ var ingestStressTestCmd = &cobra.Command{
 			NetworkPassphrase:      globalConfig.NetworkPassphrase,
 			HistorySession:         horizonSession,
 			HistoryArchiveURLs:     globalConfig.HistoryArchiveURLs,
-			EnableCaptiveCore:      globalConfig.EnableCaptiveCoreIngestion,
 			RoundingSlippageFilter: globalConfig.RoundingSlippageFilter,
 		}
 
@@ -291,7 +289,6 @@ var ingestInitGenesisStateCmd = &cobra.Command{
 			NetworkPassphrase:        globalConfig.NetworkPassphrase,
 			HistorySession:           horizonSession,
 			HistoryArchiveURLs:       globalConfig.HistoryArchiveURLs,
-			EnableCaptiveCore:        globalConfig.EnableCaptiveCoreIngestion,
 			CheckpointFrequency:      globalConfig.CheckpointFrequency,
 			RoundingSlippageFilter:   globalConfig.RoundingSlippageFilter,
 			EnableIngestionFiltering: globalConfig.EnableIngestionFiltering,
@@ -356,7 +353,6 @@ var ingestBuildStateCmd = &cobra.Command{
 			NetworkPassphrase:        globalConfig.NetworkPassphrase,
 			HistorySession:           horizonSession,
 			HistoryArchiveURLs:       globalConfig.HistoryArchiveURLs,
-			EnableCaptiveCore:        globalConfig.EnableCaptiveCoreIngestion,
 			CaptiveCoreBinaryPath:    globalConfig.CaptiveCoreBinaryPath,
 			CaptiveCoreConfigUseDB:   globalConfig.CaptiveCoreConfigUseDB,
 			RemoteCaptiveCoreURL:     globalConfig.RemoteCaptiveCoreURL,

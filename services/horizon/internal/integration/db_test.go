@@ -564,7 +564,6 @@ func command(t *testing.T, horizonConfig horizon.Config, args ...string) []strin
 		horizonConfig.CaptiveCoreConfigPath,
 		"--captive-core-use-db=" +
 			strconv.FormatBool(horizonConfig.CaptiveCoreConfigUseDB),
-		"--enable-captive-core-ingestion=" + strconv.FormatBool(horizonConfig.EnableCaptiveCoreIngestion),
 		"--network-passphrase",
 		horizonConfig.NetworkPassphrase,
 		// due to ARTIFICIALLY_ACCELERATE_TIME_FOR_TESTING

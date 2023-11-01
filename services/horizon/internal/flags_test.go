@@ -252,7 +252,6 @@ func TestEnvironmentVariables(t *testing.T) {
 	assert.Equal(t, config.StellarCoreURL, "http://localhost:11626")
 	assert.Equal(t, config.NetworkPassphrase, "Standalone Network ; February 2017")
 	assert.Equal(t, config.ApplyMigrations, true)
-	assert.Equal(t, config.EnableCaptiveCoreIngestion, false)
 	assert.Equal(t, config.CheckpointFrequency, uint32(8))
 	assert.Equal(t, config.MaxDBConnections, 50)
 	assert.Equal(t, config.AdminPort, uint(6060))

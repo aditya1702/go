@@ -31,13 +31,12 @@ var defaultCaptiveCoreParameters = map[string]string{
 }
 
 var networkParamArgs = map[string]string{
-	horizon.EnableCaptiveCoreIngestionFlagName: "",
-	horizon.CaptiveCoreConfigPathName:          "",
-	horizon.CaptiveCoreHTTPPortFlagName:        "",
-	horizon.StellarCoreBinaryPathName:          "",
-	horizon.StellarCoreURLFlagName:             "",
-	horizon.HistoryArchiveURLsFlagName:         "",
-	horizon.NetworkPassphraseFlagName:          "",
+	horizon.CaptiveCoreConfigPathName:   "",
+	horizon.CaptiveCoreHTTPPortFlagName: "",
+	horizon.StellarCoreBinaryPathName:   "",
+	horizon.StellarCoreURLFlagName:      "",
+	horizon.HistoryArchiveURLsFlagName:  "",
+	horizon.NetworkPassphraseFlagName:   "",
 }
 
 const (
@@ -164,9 +163,8 @@ func TestInvalidNetworkParameters(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			localParams := integration.MergeMaps(networkParamArgs, map[string]string{
-				horizon.NetworkFlagName:                    testCase.networkValue,
-				horizon.EnableCaptiveCoreIngestionFlagName: "true",
-				testCase.param:                             testCase.param, // set any value
+				horizon.NetworkFlagName: testCase.networkValue,
+				testCase.param:          testCase.param, // set any value
 			})
 			testConfig := integration.GetTestConfig()
 			testConfig.SkipCoreContainerCreation = true

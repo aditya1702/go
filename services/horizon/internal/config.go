@@ -19,7 +19,6 @@ type Config struct {
 	Port               uint
 	AdminPort          uint
 
-	EnableCaptiveCoreIngestion  bool
 	EnableIngestionFiltering    bool
 	CaptiveCoreBinaryPath       string
 	RemoteCaptiveCoreURL        string

@@ -43,8 +43,6 @@ const (
 	CaptiveCoreConfigUseDB = "captive-core-use-db"
 	// CaptiveCoreHTTPPortFlagName is the commandline flag for specifying captive core HTTP port
 	CaptiveCoreHTTPPortFlagName = "captive-core-http-port"
-	// EnableCaptiveCoreIngestionFlagName is the commandline flag for enabling captive core ingestion
-	EnableCaptiveCoreIngestionFlagName = "enable-captive-core-ingestion"
 	// NetworkPassphraseFlagName is the command line flag for specifying the network passphrase
 	NetworkPassphraseFlagName = "network-passphrase"
 	// HistoryArchiveURLsFlagName is the command line flag for specifying the history archive URLs
@@ -246,15 +244,6 @@ func Flags() (*Config, support.ConfigOptions) {
 				return nil
 			},
 			ConfigKey:      &config.CaptiveCoreConfigUseDB,
-			UsedInCommands: IngestionCommands,
-		},
-		&support.ConfigOption{
-			Name:           "enable-captive-core-ingestion",
-			OptType:        types.Bool,
-			FlagDefault:    true,
-			Required:       false,
-			Usage:          "causes Horizon to ingest from a Captive Stellar Core process instead of a persistent Stellar Core database",
-			ConfigKey:      &config.EnableCaptiveCoreIngestion,
 			UsedInCommands: IngestionCommands,
 		},
 		&support.ConfigOption{
@@ -902,14 +891,12 @@ func ApplyFlags(config *Config, flags support.ConfigOptions, options ApplyOption
 			return err
 		}
 
-		if config.EnableCaptiveCoreIngestion {
-			err := setCaptiveCoreConfiguration(config, options)
-			if err != nil {
-				return errors.Wrap(err, "error generating captive core configuration")
-			}
+		err := setCaptiveCoreConfiguration(config, options)
+		if err != nil {
+			return errors.Wrap(err, "error generating captive core configuration")
 		}
 	} else {
-		if config.EnableCaptiveCoreIngestion && (config.CaptiveCoreBinaryPath != "" || config.CaptiveCoreConfigPath != "") {
+		if config.CaptiveCoreBinaryPath != "" || config.CaptiveCoreConfigPath != "" {
 			captiveCoreConfigFlag := captiveCoreConfigAppendPathName
 			if viper.GetString(CaptiveCoreConfigPathName) != "" {
 				captiveCoreConfigFlag = CaptiveCoreConfigPathName

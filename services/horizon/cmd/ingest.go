@@ -139,14 +139,6 @@ var ingestVerifyRangeCmd = &cobra.Command{
 			EnableIngestionFiltering: globalConfig.EnableIngestionFiltering,
 		}
 
-		if !ingestConfig.EnableCaptiveCore {
-			coreSession, dbErr := db.Open("postgres", globalConfig.StellarCoreDatabaseURL)
-			if dbErr != nil {
-				return fmt.Errorf("cannot open Core DB: %v", dbErr)
-			}
-			ingestConfig.CoreSession = coreSession
-		}
-
 		system, err := ingest.NewSystem(ingestConfig)
 		if err != nil {
 			return err
@@ -224,17 +216,9 @@ var ingestStressTestCmd = &cobra.Command{
 			RoundingSlippageFilter: globalConfig.RoundingSlippageFilter,
 		}
 
-		if globalConfig.EnableCaptiveCoreIngestion {
-			ingestConfig.CaptiveCoreBinaryPath = globalConfig.CaptiveCoreBinaryPath
-			ingestConfig.RemoteCaptiveCoreURL = globalConfig.RemoteCaptiveCoreURL
-			ingestConfig.CaptiveCoreConfigUseDB = globalConfig.CaptiveCoreConfigUseDB
-		} else {
-			coreSession, dbErr := db.Open("postgres", globalConfig.StellarCoreDatabaseURL)
-			if dbErr != nil {
-				return fmt.Errorf("cannot open Core DB: %v", dbErr)
-			}
-			ingestConfig.CoreSession = coreSession
-		}
+		ingestConfig.CaptiveCoreBinaryPath = globalConfig.CaptiveCoreBinaryPath
+		ingestConfig.RemoteCaptiveCoreURL = globalConfig.RemoteCaptiveCoreURL
+		ingestConfig.CaptiveCoreConfigUseDB = globalConfig.CaptiveCoreConfigUseDB
 
 		system, err := ingest.NewSystem(ingestConfig)
 		if err != nil {
@@ -313,16 +297,8 @@ var ingestInitGenesisStateCmd = &cobra.Command{
 			EnableIngestionFiltering: globalConfig.EnableIngestionFiltering,
 		}
 
-		if globalConfig.EnableCaptiveCoreIngestion {
-			ingestConfig.CaptiveCoreBinaryPath = globalConfig.CaptiveCoreBinaryPath
-			ingestConfig.CaptiveCoreConfigUseDB = globalConfig.CaptiveCoreConfigUseDB
-		} else {
-			coreSession, dbErr := db.Open("postgres", globalConfig.StellarCoreDatabaseURL)
-			if dbErr != nil {
-				return fmt.Errorf("cannot open Core DB: %v", dbErr)
-			}
-			ingestConfig.CoreSession = coreSession
-		}
+		ingestConfig.CaptiveCoreBinaryPath = globalConfig.CaptiveCoreBinaryPath
+		ingestConfig.CaptiveCoreConfigUseDB = globalConfig.CaptiveCoreConfigUseDB
 
 		system, err := ingest.NewSystem(ingestConfig)
 		if err != nil {
@@ -389,16 +365,6 @@ var ingestBuildStateCmd = &cobra.Command{
 			CaptiveCoreStoragePath:   globalConfig.CaptiveCoreStoragePath,
 			RoundingSlippageFilter:   globalConfig.RoundingSlippageFilter,
 			EnableIngestionFiltering: globalConfig.EnableIngestionFiltering,
-		}
-
-		if !ingestBuildStateSkipChecks {
-			if !ingestConfig.EnableCaptiveCore {
-				coreSession, dbErr := db.Open("postgres", globalConfig.StellarCoreDatabaseURL)
-				if dbErr != nil {
-					return fmt.Errorf("cannot open Core DB: %v", dbErr)
-				}
-				ingestConfig.CoreSession = coreSession
-			}
 		}
 
 		system, err := ingest.NewSystem(ingestConfig)

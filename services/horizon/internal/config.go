@@ -30,8 +30,7 @@ type Config struct {
 	CaptiveCoreReuseStoragePath bool
 	CaptiveCoreConfigUseDB      bool
 
-	StellarCoreDatabaseURL string
-	StellarCoreURL         string
+	StellarCoreURL string
 
 	// MaxDBConnections has a priority over all 4 values below.
 	MaxDBConnections            int

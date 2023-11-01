@@ -422,13 +422,6 @@ func runDBReingestRange(ledgerRanges []history.LedgerRange, reingestForce bool, 
 		return fmt.Errorf("cannot open Horizon DB: %v", err)
 	}
 
-	if !config.EnableCaptiveCoreIngestion {
-		if ingestConfig.CoreSession, err = db.Open("postgres", config.StellarCoreDatabaseURL); err != nil {
-			ingestConfig.HistorySession.Close()
-			return fmt.Errorf("cannot open Core DB: %v", err)
-		}
-	}
-
 	if parallelWorkers > 1 {
 		system, systemErr := ingest.NewParallelSystems(ingestConfig, parallelWorkers)
 		if systemErr != nil {

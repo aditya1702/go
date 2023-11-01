@@ -92,10 +92,6 @@ func mustInitHorizonDB(app *App) {
 func initIngester(app *App) {
 	var err error
 	var coreSession db.SessionInterface
-	if !app.config.EnableCaptiveCoreIngestion {
-		coreSession = mustNewDBSession(
-			db.CoreSubservice, app.config.StellarCoreDatabaseURL, ingest.MaxDBConnections, ingest.MaxDBConnections, app.prometheusRegistry)
-	}
 	app.ingester, err = ingest.NewSystem(ingest.Config{
 		CoreSession: coreSession,
 		HistorySession: mustNewDBSession(

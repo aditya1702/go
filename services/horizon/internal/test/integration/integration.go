@@ -447,18 +447,12 @@ func (i *Test) getDefaultIngestArgs(postgres *dbtest.DB) map[string]string {
 		"port":                          "8001",
 		"enable-captive-core-ingestion": strconv.FormatBool(len(i.coreConfig.binaryPath) > 0),
 		"db-url":                        postgres.DSN,
-		"stellar-core-db-url": fmt.Sprintf(
-			"postgres://postgres:%s@%s:%d/stellar?sslmode=disable",
-			stellarCorePostgresPassword,
-			"localhost",
-			stellarCorePostgresPort,
-		),
-		"stellar-core-binary-path":  i.coreConfig.binaryPath,
-		"captive-core-config-path":  i.coreConfig.configPath,
-		"captive-core-http-port":    "21626",
-		"captive-core-use-db":       strconv.FormatBool(i.coreConfig.useDB),
-		"captive-core-storage-path": i.coreConfig.storagePath,
-		"ingest":                    "true"})
+		"stellar-core-binary-path":      i.coreConfig.binaryPath,
+		"captive-core-config-path":      i.coreConfig.configPath,
+		"captive-core-http-port":        "21626",
+		"captive-core-use-db":           strconv.FormatBool(i.coreConfig.useDB),
+		"captive-core-storage-path":     i.coreConfig.storagePath,
+		"ingest":                        "true"})
 }
 
 func (i *Test) createWebCommand(webConfig *horizon.Config, webConfigOpts config.ConfigOptions) *cobra.Command {

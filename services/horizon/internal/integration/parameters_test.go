@@ -28,7 +28,6 @@ import (
 var defaultCaptiveCoreParameters = map[string]string{
 	horizon.StellarCoreBinaryPathName: os.Getenv("CAPTIVE_CORE_BIN"),
 	horizon.StellarCoreURLFlagName:    "",
-	horizon.StellarCoreDBURLFlagName:  "",
 }
 
 var networkParamArgs = map[string]string{
@@ -400,10 +399,9 @@ func TestIngestionFilteringAlwaysDefaultingToTrue(t *testing.T) {
 func TestDisableTxSub(t *testing.T) {
 	t.Run("require stellar-core-url when both DISABLE_TX_SUB=false and INGEST=false", func(t *testing.T) {
 		localParams := integration.MergeMaps(networkParamArgs, map[string]string{
-			horizon.NetworkFlagName:          "testnet",
-			horizon.IngestFlagName:           "false",
-			horizon.DisableTxSubFlagName:     "false",
-			horizon.StellarCoreDBURLFlagName: "",
+			horizon.NetworkFlagName:      "testnet",
+			horizon.IngestFlagName:       "false",
+			horizon.DisableTxSubFlagName: "false",
 		})
 		testConfig := integration.GetTestConfig()
 		testConfig.HorizonIngestParameters = localParams
@@ -414,13 +412,11 @@ func TestDisableTxSub(t *testing.T) {
 		test.Shutdown()
 	})
 	t.Run("horizon starts successfully when DISABLE_TX_SUB=false, INGEST=false and stellar-core-url is provided", func(t *testing.T) {
-		// TODO: Remove explicit mention of stellar-core-db-url once this issue is done: https://github.com/stellar/go/issues/4855
 		localParams := integration.MergeMaps(networkParamArgs, map[string]string{
-			horizon.NetworkFlagName:          "testnet",
-			horizon.IngestFlagName:           "false",
-			horizon.DisableTxSubFlagName:     "false",
-			horizon.StellarCoreDBURLFlagName: "",
-			horizon.StellarCoreURLFlagName:   "http://localhost:11626",
+			horizon.NetworkFlagName:        "testnet",
+			horizon.IngestFlagName:         "false",
+			horizon.DisableTxSubFlagName:   "false",
+			horizon.StellarCoreURLFlagName: "http://localhost:11626",
 		})
 		testConfig := integration.GetTestConfig()
 		testConfig.HorizonIngestParameters = localParams

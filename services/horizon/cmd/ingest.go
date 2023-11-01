@@ -140,10 +140,6 @@ var ingestVerifyRangeCmd = &cobra.Command{
 		}
 
 		if !ingestConfig.EnableCaptiveCore {
-			if globalConfig.StellarCoreDatabaseURL == "" {
-				return fmt.Errorf("flag --%s cannot be empty", horizon.StellarCoreDBURLFlagName)
-			}
-
 			coreSession, dbErr := db.Open("postgres", globalConfig.StellarCoreDatabaseURL)
 			if dbErr != nil {
 				return fmt.Errorf("cannot open Core DB: %v", dbErr)
@@ -233,10 +229,6 @@ var ingestStressTestCmd = &cobra.Command{
 			ingestConfig.RemoteCaptiveCoreURL = globalConfig.RemoteCaptiveCoreURL
 			ingestConfig.CaptiveCoreConfigUseDB = globalConfig.CaptiveCoreConfigUseDB
 		} else {
-			if globalConfig.StellarCoreDatabaseURL == "" {
-				return fmt.Errorf("flag --%s cannot be empty", horizon.StellarCoreDBURLFlagName)
-			}
-
 			coreSession, dbErr := db.Open("postgres", globalConfig.StellarCoreDatabaseURL)
 			if dbErr != nil {
 				return fmt.Errorf("cannot open Core DB: %v", dbErr)
@@ -325,10 +317,6 @@ var ingestInitGenesisStateCmd = &cobra.Command{
 			ingestConfig.CaptiveCoreBinaryPath = globalConfig.CaptiveCoreBinaryPath
 			ingestConfig.CaptiveCoreConfigUseDB = globalConfig.CaptiveCoreConfigUseDB
 		} else {
-			if globalConfig.StellarCoreDatabaseURL == "" {
-				return fmt.Errorf("flag --%s cannot be empty", horizon.StellarCoreDBURLFlagName)
-			}
-
 			coreSession, dbErr := db.Open("postgres", globalConfig.StellarCoreDatabaseURL)
 			if dbErr != nil {
 				return fmt.Errorf("cannot open Core DB: %v", dbErr)
@@ -405,10 +393,6 @@ var ingestBuildStateCmd = &cobra.Command{
 
 		if !ingestBuildStateSkipChecks {
 			if !ingestConfig.EnableCaptiveCore {
-				if globalConfig.StellarCoreDatabaseURL == "" {
-					return fmt.Errorf("flag --%s cannot be empty", horizon.StellarCoreDBURLFlagName)
-				}
-
 				coreSession, dbErr := db.Open("postgres", globalConfig.StellarCoreDatabaseURL)
 				if dbErr != nil {
 					return fmt.Errorf("cannot open Core DB: %v", dbErr)

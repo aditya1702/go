@@ -29,8 +29,6 @@ const (
 	DatabaseURLFlagName = "db-url"
 	// IngestFlagName is the command line flag for enabling ingestion on the Horizon instance
 	IngestFlagName = "ingest"
-	// StellarCoreDBURLFlagName is the command line flag for configuring the postgres Stellar Core URL
-	StellarCoreDBURLFlagName = "stellar-core-db-url"
 	// StellarCoreURLFlagName is the command line flag for configuring the URL fore Stellar Core HTTP endpoint
 	StellarCoreURLFlagName = "stellar-core-url"
 	// StellarCoreBinaryPathName is the command line flag for configuring the path to the stellar core binary
@@ -320,15 +318,6 @@ func Flags() (*Config, support.ConfigOptions) {
 			Required:       false,
 			Usage:          "port for Captive Core to bind to for connecting to the Stellar swarm (0 uses Stellar Core's default)",
 			ConfigKey:      &config.CaptiveCoreTomlParams.PeerPort,
-			UsedInCommands: IngestionCommands,
-		},
-		&support.ConfigOption{
-			Name:           StellarCoreDBURLFlagName,
-			EnvVar:         "STELLAR_CORE_DATABASE_URL",
-			ConfigKey:      &config.StellarCoreDatabaseURL,
-			OptType:        types.String,
-			Required:       false,
-			Usage:          "stellar-core postgres database to connect with",
 			UsedInCommands: IngestionCommands,
 		},
 		&support.ConfigOption{
@@ -724,9 +713,6 @@ func NewAppFromFlags(config *Config, flags support.ConfigOptions) (*App, error) 
 	if config.StellarCoreURL == "" {
 		return nil, fmt.Errorf("flag --%s cannot be empty", StellarCoreURLFlagName)
 	}
-	if config.Ingest && !config.EnableCaptiveCoreIngestion && config.StellarCoreDatabaseURL == "" {
-		return nil, fmt.Errorf("flag --%s cannot be empty", StellarCoreDBURLFlagName)
-	}
 
 	log.Infof("Initializing horizon...")
 	app, err := NewApp(*config)
@@ -930,10 +916,6 @@ func ApplyFlags(config *Config, flags support.ConfigOptions, options ApplyOption
 			}
 			return fmt.Errorf("invalid config: one or more captive core params passed (--%s or --%s) but --ingest not set"+captiveCoreMigrationHint,
 				StellarCoreBinaryPathName, captiveCoreConfigFlag)
-		}
-		if config.StellarCoreDatabaseURL != "" {
-			return fmt.Errorf("invalid config: --%s passed but --ingest not set"+
-				"", StellarCoreDBURLFlagName)
 		}
 	}
 

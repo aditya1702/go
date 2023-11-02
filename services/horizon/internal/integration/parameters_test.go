@@ -112,7 +112,10 @@ func TestEnvironmentPreserved(t *testing.T) {
 	confName, _, cleanup := createCaptiveCoreConfig(SIMPLE_CAPTIVE_CORE_TOML)
 	defer cleanup()
 	testConfig := integration.GetTestConfig()
-	testConfig.HorizonEnvironment = map[string]string{"CAPTIVE_CORE_CONFIG_PATH": confName}
+	testConfig.HorizonEnvironment = map[string]string{
+		"CAPTIVE_CORE_CONFIG_PATH": confName,
+		"CAPTIVE_CORE_BINARY_PATH": os.Getenv("HORIZON_INTEGRATION_TESTS_CAPTIVE_CORE_BIN"),
+	}
 	test := integration.NewTest(t, *testConfig)
 
 	err = test.StartHorizon()

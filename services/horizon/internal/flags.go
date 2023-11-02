@@ -901,7 +901,7 @@ func ApplyFlags(config *Config, flags support.ConfigOptions, options ApplyOption
 			if viper.GetString(CaptiveCoreConfigPathName) != "" {
 				captiveCoreConfigFlag = CaptiveCoreConfigPathName
 			}
-			return fmt.Errorf("invalid config: one or more captive core params passed (--%s or --%s) but --ingest not set"+captiveCoreMigrationHint,
+			return fmt.Errorf("invalid config: one or more captive core params passed (--%s or --%s) but --ingest not set. "+captiveCoreMigrationHint,
 				StellarCoreBinaryPathName, captiveCoreConfigFlag)
 		}
 	}

@@ -53,6 +53,8 @@ const (
 		PUBLIC_KEY="GD5KD2KEZJIGTC63IGW6UMUSMVUVG5IHG64HUTFWCHVZH2N2IBOQN7PS"
 		ADDRESS="localhost"
 		QUALITY="MEDIUM"`
+
+	STELLAR_CORE_URL = "http://localhost:11626"
 )
 
 var (
@@ -97,24 +99,21 @@ func TestEnvironmentPreserved(t *testing.T) {
 	// running an integration test.
 
 	// Note that we ALSO need to make sure we don't modify parent env state.
-	value, isSet := os.LookupEnv("CAPTIVE_CORE_CONFIG_PATH")
+	value, isSet := os.LookupEnv("STELLAR_CORE_URL")
 	defer func() {
 		if isSet {
-			_ = os.Setenv("CAPTIVE_CORE_CONFIG_PATH", value)
+			_ = os.Setenv("STELLAR_CORE_URL", value)
 		} else {
-			_ = os.Unsetenv("CAPTIVE_CORE_CONFIG_PATH")
+			_ = os.Unsetenv("STELLAR_CORE_URL")
 		}
 	}()
 
-	err := os.Setenv("CAPTIVE_CORE_CONFIG_PATH", "original value")
+	err := os.Setenv("STELLAR_CORE_URL", "original value")
 	assert.NoError(t, err)
 
-	confName, _, cleanup := createCaptiveCoreConfig(SIMPLE_CAPTIVE_CORE_TOML)
-	defer cleanup()
 	testConfig := integration.GetTestConfig()
 	testConfig.HorizonEnvironment = map[string]string{
-		"CAPTIVE_CORE_CONFIG_PATH": confName,
-		"CAPTIVE_CORE_BINARY_PATH": os.Getenv("HORIZON_INTEGRATION_TESTS_CAPTIVE_CORE_BIN"),
+		"STELLAR_CORE_URL": STELLAR_CORE_URL,
 	}
 	test := integration.NewTest(t, *testConfig)
 
@@ -122,12 +121,12 @@ func TestEnvironmentPreserved(t *testing.T) {
 	assert.NoError(t, err)
 	test.WaitForHorizon()
 
-	envValue := os.Getenv("CAPTIVE_CORE_CONFIG_PATH")
-	assert.Equal(t, confName, envValue)
+	envValue := os.Getenv("STELLAR_CORE_URL")
+	assert.Equal(t, STELLAR_CORE_URL, envValue)
 
 	test.Shutdown()
 
-	envValue = os.Getenv("CAPTIVE_CORE_CONFIG_PATH")
+	envValue = os.Getenv("STELLAR_CORE_URL")
 	assert.Equal(t, "original value", envValue)
 }
 

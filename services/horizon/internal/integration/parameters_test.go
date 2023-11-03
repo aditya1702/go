@@ -40,7 +40,7 @@ var networkParamArgs = map[string]string{
 }
 
 const (
-	SIMPLE_CAPTIVE_CORE_TOML = `
+	SimpleCaptiveCoreToml = `
 		PEER_PORT=11725
 		ARTIFICIALLY_ACCELERATE_TIME_FOR_TESTING=true
 
@@ -54,7 +54,7 @@ const (
 		ADDRESS="localhost"
 		QUALITY="MEDIUM"`
 
-	STELLAR_CORE_URL = "http://localhost:11626"
+	StellarCoreUrl = "http://localhost:11626"
 )
 
 var (
@@ -73,7 +73,7 @@ func TestBucketDirDisallowed(t *testing.T) {
 	}
 
 	config := `BUCKET_DIR_PATH="/tmp"
-		` + SIMPLE_CAPTIVE_CORE_TOML
+		` + SimpleCaptiveCoreToml
 
 	confName, _, cleanup := createCaptiveCoreConfig(config)
 	defer cleanup()
@@ -113,7 +113,7 @@ func TestEnvironmentPreserved(t *testing.T) {
 
 	testConfig := integration.GetTestConfig()
 	testConfig.HorizonEnvironment = map[string]string{
-		"STELLAR_CORE_URL": STELLAR_CORE_URL,
+		"STELLAR_CORE_URL": StellarCoreUrl,
 	}
 	test := integration.NewTest(t, *testConfig)
 
@@ -122,7 +122,7 @@ func TestEnvironmentPreserved(t *testing.T) {
 	test.WaitForHorizon()
 
 	envValue := os.Getenv("STELLAR_CORE_URL")
-	assert.Equal(t, STELLAR_CORE_URL, envValue)
+	assert.Equal(t, StellarCoreUrl, envValue)
 
 	test.Shutdown()
 
@@ -281,7 +281,7 @@ func TestCaptiveCoreConfigFilesystemState(t *testing.T) {
 		t.Skip() // explained above
 	}
 
-	confName, storagePath, cleanup := createCaptiveCoreConfig(SIMPLE_CAPTIVE_CORE_TOML)
+	confName, storagePath, cleanup := createCaptiveCoreConfig(SimpleCaptiveCoreToml)
 	defer cleanup()
 
 	localParams := integration.MergeMaps(defaultCaptiveCoreParameters, map[string]string{

@@ -935,15 +935,6 @@ func ApplyFlags(config *Config, flags support.ConfigOptions, options ApplyOption
 		if err != nil {
 			return errors.Wrap(err, "error generating captive core configuration")
 		}
-	} else {
-		if config.CaptiveCoreBinaryPath != "" || config.CaptiveCoreConfigPath != "" {
-			captiveCoreConfigFlag := captiveCoreConfigAppendPathName
-			if viper.GetString(CaptiveCoreConfigPathName) != "" {
-				captiveCoreConfigFlag = CaptiveCoreConfigPathName
-			}
-			return fmt.Errorf("invalid config: one or more captive core params passed (--%s or --%s) but --ingest not set. "+captiveCoreMigrationHint,
-				StellarCoreBinaryPathName, captiveCoreConfigFlag)
-		}
 	}
 
 	// Configure log file

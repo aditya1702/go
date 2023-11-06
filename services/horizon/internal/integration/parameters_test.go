@@ -54,7 +54,7 @@ const (
 		ADDRESS="localhost"
 		QUALITY="MEDIUM"`
 
-	StellarCoreUrl = "http://localhost:11626"
+	StellarCoreURL = "http://localhost:11626"
 )
 
 var (
@@ -113,7 +113,7 @@ func TestEnvironmentPreserved(t *testing.T) {
 
 	testConfig := integration.GetTestConfig()
 	testConfig.HorizonEnvironment = map[string]string{
-		"STELLAR_CORE_URL": StellarCoreUrl,
+		"STELLAR_CORE_URL": StellarCoreURL,
 	}
 	test := integration.NewTest(t, *testConfig)
 
@@ -122,7 +122,7 @@ func TestEnvironmentPreserved(t *testing.T) {
 	test.WaitForHorizon()
 
 	envValue := os.Getenv("STELLAR_CORE_URL")
-	assert.Equal(t, StellarCoreUrl, envValue)
+	assert.Equal(t, StellarCoreURL, envValue)
 
 	test.Shutdown()
 

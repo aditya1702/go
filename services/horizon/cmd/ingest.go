@@ -212,11 +212,10 @@ var ingestStressTestCmd = &cobra.Command{
 			HistorySession:         horizonSession,
 			HistoryArchiveURLs:     globalConfig.HistoryArchiveURLs,
 			RoundingSlippageFilter: globalConfig.RoundingSlippageFilter,
+			CaptiveCoreBinaryPath:  globalConfig.CaptiveCoreBinaryPath,
+			RemoteCaptiveCoreURL:   globalConfig.RemoteCaptiveCoreURL,
+			CaptiveCoreConfigUseDB: globalConfig.CaptiveCoreConfigUseDB,
 		}
-
-		ingestConfig.CaptiveCoreBinaryPath = globalConfig.CaptiveCoreBinaryPath
-		ingestConfig.RemoteCaptiveCoreURL = globalConfig.RemoteCaptiveCoreURL
-		ingestConfig.CaptiveCoreConfigUseDB = globalConfig.CaptiveCoreConfigUseDB
 
 		system, err := ingest.NewSystem(ingestConfig)
 		if err != nil {

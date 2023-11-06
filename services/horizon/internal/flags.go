@@ -29,6 +29,8 @@ const (
 	DatabaseURLFlagName = "db-url"
 	// IngestFlagName is the command line flag for enabling ingestion on the Horizon instance
 	IngestFlagName = "ingest"
+	// StellarCoreDBURLFlagName is the command line flag for configuring the postgres Stellar Core URL
+	StellarCoreDBURLFlagName = "stellar-core-db-url"
 	// StellarCoreURLFlagName is the command line flag for configuring the URL fore Stellar Core HTTP endpoint
 	StellarCoreURLFlagName = "stellar-core-url"
 	// StellarCoreBinaryPathName is the command line flag for configuring the path to the stellar core binary
@@ -43,6 +45,8 @@ const (
 	CaptiveCoreConfigUseDB = "captive-core-use-db"
 	// CaptiveCoreHTTPPortFlagName is the commandline flag for specifying captive core HTTP port
 	CaptiveCoreHTTPPortFlagName = "captive-core-http-port"
+	// EnableCaptiveCoreIngestionFlagName is the commandline flag for enabling captive core ingestion
+	EnableCaptiveCoreIngestionFlagName = "enable-captive-core-ingestion"
 	// NetworkPassphraseFlagName is the command line flag for specifying the network passphrase
 	NetworkPassphraseFlagName = "network-passphrase"
 	// HistoryArchiveURLsFlagName is the command line flag for specifying the history archive URLs
@@ -247,6 +251,24 @@ func Flags() (*Config, support.ConfigOptions) {
 			UsedInCommands: IngestionCommands,
 		},
 		&support.ConfigOption{
+			Name:        EnableCaptiveCoreIngestionFlagName,
+			OptType:     types.String,
+			FlagDefault: "",
+			Required:    false,
+			Hidden:      true,
+			CustomSetValue: func(opt *support.ConfigOption) error {
+				if val := viper.GetString(opt.Name); val != "" {
+					stdLog.Printf(
+						"DEPRECATED - The usage of the flag --enable-captive-core-ingestion has been deprecated. " +
+							"Horizon now uses Captive-Core ingestion by default and this flag will soon be removed in " +
+							"the future.",
+					)
+				}
+				return nil
+			},
+			UsedInCommands: IngestionCommands,
+		},
+		&support.ConfigOption{
 			Name:        EnableIngestionFilteringFlagName,
 			OptType:     types.String,
 			FlagDefault: "",
@@ -307,6 +329,24 @@ func Flags() (*Config, support.ConfigOptions) {
 			Required:       false,
 			Usage:          "port for Captive Core to bind to for connecting to the Stellar swarm (0 uses Stellar Core's default)",
 			ConfigKey:      &config.CaptiveCoreTomlParams.PeerPort,
+			UsedInCommands: IngestionCommands,
+		},
+		&support.ConfigOption{
+			Name:     StellarCoreDBURLFlagName,
+			EnvVar:   "STELLAR_CORE_DATABASE_URL",
+			OptType:  types.String,
+			Required: false,
+			Hidden:   true,
+			CustomSetValue: func(opt *support.ConfigOption) error {
+				if val := viper.GetString(opt.Name); val != "" {
+					stdLog.Printf(
+						"DEPRECATED - The usage of the flag --stellar-core-db-url has been deprecated. " +
+							"Horizon now uses Captive-Core ingestion by default and this flag will soon be removed in " +
+							"the future.",
+					)
+				}
+				return nil
+			},
 			UsedInCommands: IngestionCommands,
 		},
 		&support.ConfigOption{

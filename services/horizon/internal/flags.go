@@ -57,8 +57,7 @@ const (
 	EnableIngestionFilteringFlagName = "exp-enable-ingestion-filtering"
 	// DisableTxSubFlagName is the command line flag for disabling transaction submission feature of Horizon
 	DisableTxSubFlagName = "disable-tx-sub"
-
-	captiveCoreMigrationHint = "If you are migrating from Horizon 1.x.y, start with the Migration Guide here: https://developers.stellar.org/docs/run-api-server/migrating/"
+	
 	// StellarPubnet is a constant representing the Stellar public network
 	StellarPubnet = "pubnet"
 	// StellarTestnet is a constant representing the Stellar test network

@@ -57,7 +57,7 @@ const (
 	EnableIngestionFilteringFlagName = "exp-enable-ingestion-filtering"
 	// DisableTxSubFlagName is the command line flag for disabling transaction submission feature of Horizon
 	DisableTxSubFlagName = "disable-tx-sub"
-	
+
 	// StellarPubnet is a constant representing the Stellar public network
 	StellarPubnet = "pubnet"
 	// StellarTestnet is a constant representing the Stellar test network

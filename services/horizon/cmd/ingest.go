@@ -291,10 +291,9 @@ var ingestInitGenesisStateCmd = &cobra.Command{
 			CheckpointFrequency:      globalConfig.CheckpointFrequency,
 			RoundingSlippageFilter:   globalConfig.RoundingSlippageFilter,
 			EnableIngestionFiltering: globalConfig.EnableIngestionFiltering,
+			CaptiveCoreBinaryPath:    globalConfig.CaptiveCoreBinaryPath,
+			CaptiveCoreConfigUseDB:   globalConfig.CaptiveCoreConfigUseDB,
 		}
-
-		ingestConfig.CaptiveCoreBinaryPath = globalConfig.CaptiveCoreBinaryPath
-		ingestConfig.CaptiveCoreConfigUseDB = globalConfig.CaptiveCoreConfigUseDB
 
 		system, err := ingest.NewSystem(ingestConfig)
 		if err != nil {

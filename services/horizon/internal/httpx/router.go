@@ -331,6 +331,13 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 		CoreStateGetter:   config.CoreGetter,
 	}})
 
+	// Async Transaction submission API
+	r.Method(http.MethodPost, "/v2/transactions", ObjectActionHandler{actions.AsyncSubmitTransactionHandler{
+		NetworkPassphrase: config.NetworkPassphrase,
+		DisableTxSub:      config.DisableTxSub,
+		CoreStateGetter:   config.CoreGetter,
+	}})
+
 	// Network state related endpoints
 	r.Method(http.MethodGet, "/fee_stats", ObjectActionHandler{actions.FeeStatsHandler{}})
 

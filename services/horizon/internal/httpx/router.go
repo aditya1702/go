@@ -3,6 +3,7 @@ package httpx
 import (
 	"compress/flate"
 	"fmt"
+	"github.com/stellar/go/clients/stellarcore"
 	"net/http"
 	"net/http/pprof"
 	"net/url"
@@ -50,6 +51,7 @@ type RouterConfig struct {
 	HealthCheck              http.Handler
 	EnableIngestionFiltering bool
 	DisableTxSub             bool
+	StellarCoreURL           string
 }
 
 type Router struct {
@@ -336,6 +338,10 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 		NetworkPassphrase: config.NetworkPassphrase,
 		DisableTxSub:      config.DisableTxSub,
 		CoreStateGetter:   config.CoreGetter,
+		CoreClient: &stellarcore.Client{
+			HTTP: http.DefaultClient,
+			URL:  config.StellarCoreURL,
+		},
 	}})
 
 	// Network state related endpoints

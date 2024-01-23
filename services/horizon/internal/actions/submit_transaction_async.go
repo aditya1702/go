@@ -16,7 +16,7 @@ import (
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
-	StellarCore       *stellarcore.Client
+	CoreClient        *stellarcore.Client
 	CoreStateGetter
 }
 
@@ -124,7 +124,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 		return nil, hProblem.StaleHistory
 	}
 
-	resp, err := handler.StellarCore.SubmitTransaction(r.Context(), info.raw)
+	resp, err := handler.CoreClient.SubmitTransaction(r.Context(), info.raw)
 	if err != nil {
 		return nil, &problem.P{
 			Type:   "transaction_submission_failed",

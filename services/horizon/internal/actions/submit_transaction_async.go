@@ -79,7 +79,7 @@ func (handler AsyncSubmitTransactionHandler) validateBodyType(r *http.Request) e
 	return nil
 }
 
-func (handler AsyncSubmitTransactionHandler) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
+func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http.Request) (interface{}, error) {
 	if err := handler.validateBodyType(r); err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(w HeaderWriter, r *http
 				"https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-v2/transaction_submission_exception",
 			Extras: map[string]interface{}{
 				"envelope_xdr": raw,
-				"error":        err,
+				"error":        resp.Exception,
 			},
 		}
 	}
@@ -181,7 +181,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(w HeaderWriter, r *http
 				"https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-v2/transaction_submission_invalid_status",
 			Extras: map[string]interface{}{
 				"envelope_xdr": raw,
-				"error":        err,
+				"error":        resp.Error,
 			},
 		}
 	}

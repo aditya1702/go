@@ -13,16 +13,23 @@ import (
 	"net/http"
 )
 
+const (
+	HttpStatusCodeForPending       = http.StatusCreated
+	HttpStatusCodeForDuplicate     = http.StatusConflict
+	HttpStatusCodeForTryAgainLater = http.StatusServiceUnavailable
+	HttpStatusCodeForError         = http.StatusBadRequest
+)
+
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
-	CoreClient        *stellarcore.Client
+	CoreClient        stellarcore.ClientInterface
 	CoreStateGetter
 }
 
-// SendTransactionResponse represents the transaction submission response returned by Horizon
+// TransactionSubmissionResponse represents the response returned by Horizon
 // when using the transaction-submission-v2 endpoint.
-type SendTransactionResponse struct {
+type TransactionSubmissionResponse struct {
 	// ErrorResultXDR is present only if Status is equal to proto.TXStatusError.
 	// ErrorResultXDR is a TransactionResult xdr string which contains details on why
 	// the transaction could not be accepted by stellar-core.
@@ -33,7 +40,9 @@ type SendTransactionResponse struct {
 	// TxStatus represents the status of the transaction submission returned by stellar-core.
 	// It can be one of: proto.TXStatusPending, proto.TXStatusDuplicate,
 	// proto.TXStatusTryAgainLater, or proto.TXStatusError.
-	TxStatus string `json:"status"`
+	TxStatus string `json:"tx_status"`
+	// HttpStatus represents the corresponding http status code.
+	HttpStatus int `json:"status"`
 	// Hash is a hash of the transaction which can be used to look up whether
 	// the transaction was included in the ledger.
 	Hash string `json:"hash"`
@@ -159,16 +168,27 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 
 	switch resp.Status {
 	case proto.TXStatusError:
-		return SendTransactionResponse{
+		return TransactionSubmissionResponse{
 			ErrorResultXDR:      resp.Error,
 			DiagnosticEventsXDR: resp.DiagnosticEvents,
 			TxStatus:            resp.Status,
+			HttpStatus:          HttpStatusCodeForError,
 			Hash:                info.hash,
 		}, nil
 	case proto.TXStatusPending, proto.TXStatusDuplicate, proto.TXStatusTryAgainLater:
-		return SendTransactionResponse{
-			TxStatus: resp.Status,
-			Hash:     info.hash,
+		var httpStatus int
+		if resp.Status == proto.TXStatusPending {
+			httpStatus = HttpStatusCodeForPending
+		} else if resp.Status == proto.TXStatusDuplicate {
+			httpStatus = HttpStatusCodeForDuplicate
+		} else {
+			httpStatus = HttpStatusCodeForTryAgainLater
+		}
+
+		return TransactionSubmissionResponse{
+			TxStatus:   resp.Status,
+			HttpStatus: httpStatus,
+			Hash:       info.hash,
 		}, nil
 	default:
 		return nil, &problem.P{

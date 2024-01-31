@@ -2,9 +2,10 @@ package stellarcore
 
 import (
 	"context"
-	"github.com/stellar/go/support/http/httptest"
 	"net/http"
 	"net/url"
+
+	"github.com/stellar/go/support/http/httptest"
 
 	proto "github.com/stellar/go/protocols/stellarcore"
 	"github.com/stellar/go/xdr"

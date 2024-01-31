@@ -3,11 +3,12 @@ package httpx
 import (
 	"compress/flate"
 	"fmt"
-	"github.com/stellar/go/clients/stellarcore"
 	"net/http"
 	"net/http/pprof"
 	"net/url"
 	"time"
+
+	"github.com/stellar/go/clients/stellarcore"
 
 	"github.com/go-chi/chi"
 	chimiddleware "github.com/go-chi/chi/middleware"

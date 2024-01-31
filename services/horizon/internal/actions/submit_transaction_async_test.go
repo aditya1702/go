@@ -2,6 +2,12 @@ package actions
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"strings"
+	"testing"
+
 	"github.com/stellar/go/clients/stellarcore"
 	"github.com/stellar/go/network"
 	proto "github.com/stellar/go/protocols/stellarcore"
@@ -9,11 +15,6 @@ import (
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/support/render/problem"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"strings"
-	"testing"
 )
 
 const (

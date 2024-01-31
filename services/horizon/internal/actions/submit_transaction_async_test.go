@@ -153,7 +153,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 				ErrorResultXDR:      "test-error",
 				DiagnosticEventsXDR: "test-diagnostic-events",
 				TxStatus:            proto.TXStatusError,
-				HttpStatus:          HttpStatusCodeForError,
+				HttpStatus:          HTTPStatusCodeForError,
 				Hash:                TxHash,
 			},
 		},
@@ -163,7 +163,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			},
 			expectedResponse: TransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusPending,
-				HttpStatus: HttpStatusCodeForPending,
+				HttpStatus: HTTPStatusCodeForPending,
 				Hash:       TxHash,
 			},
 		},
@@ -173,7 +173,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			},
 			expectedResponse: TransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusDuplicate,
-				HttpStatus: HttpStatusCodeForDuplicate,
+				HttpStatus: HTTPStatusCodeForDuplicate,
 				Hash:       TxHash,
 			},
 		},
@@ -183,7 +183,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			},
 			expectedResponse: TransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusTryAgainLater,
-				HttpStatus: HttpStatusCodeForTryAgainLater,
+				HttpStatus: HTTPStatusCodeForTryAgainLater,
 				Hash:       TxHash,
 			},
 		},

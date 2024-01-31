@@ -1,24 +1,19 @@
 package actions
 
 import (
-	"encoding/hex"
-	"mime"
 	"net/http"
 
 	"github.com/stellar/go/clients/stellarcore"
-	"github.com/stellar/go/network"
 	proto "github.com/stellar/go/protocols/stellarcore"
 	hProblem "github.com/stellar/go/services/horizon/internal/render/problem"
-	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/support/render/problem"
-	"github.com/stellar/go/xdr"
 )
 
 const (
-	HttpStatusCodeForPending       = http.StatusCreated
-	HttpStatusCodeForDuplicate     = http.StatusConflict
-	HttpStatusCodeForTryAgainLater = http.StatusServiceUnavailable
-	HttpStatusCodeForError         = http.StatusBadRequest
+	HTTPStatusCodeForPending       = http.StatusCreated
+	HTTPStatusCodeForDuplicate     = http.StatusConflict
+	HTTPStatusCodeForTryAgainLater = http.StatusServiceUnavailable
+	HTTPStatusCodeForError         = http.StatusBadRequest
 )
 
 type AsyncSubmitTransactionHandler struct {
@@ -49,48 +44,8 @@ type TransactionSubmissionResponse struct {
 	Hash string `json:"hash"`
 }
 
-func (handler AsyncSubmitTransactionHandler) extractEnvelopeInfo(raw string, passphrase string) (envelopeInfo, error) {
-	result := envelopeInfo{raw: raw}
-	err := xdr.SafeUnmarshalBase64(raw, &result.parsed)
-	if err != nil {
-		return result, err
-	}
-
-	var hash [32]byte
-	hash, err = network.HashTransactionInEnvelope(result.parsed, passphrase)
-	if err != nil {
-		return result, err
-	}
-	result.hash = hex.EncodeToString(hash[:])
-	if result.parsed.IsFeeBump() {
-		hash, err = network.HashTransaction(result.parsed.FeeBump.Tx.InnerTx.V1.Tx, passphrase)
-		if err != nil {
-			return result, err
-		}
-		result.innerHash = hex.EncodeToString(hash[:])
-	}
-	return result, nil
-}
-
-func (handler AsyncSubmitTransactionHandler) validateBodyType(r *http.Request) error {
-	c := r.Header.Get("Content-Type")
-	if c == "" {
-		return nil
-	}
-
-	mt, _, err := mime.ParseMediaType(c)
-	if err != nil {
-		return errors.Wrap(err, "Could not determine mime type")
-	}
-
-	if mt != "application/x-www-form-urlencoded" && mt != "multipart/form-data" {
-		return &hProblem.UnsupportedMediaType
-	}
-	return nil
-}
-
 func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http.Request) (interface{}, error) {
-	if err := handler.validateBodyType(r); err != nil {
+	if err := validateBodyType(r); err != nil {
 		return nil, err
 	}
 
@@ -112,7 +67,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 		}
 	}
 
-	info, err := handler.extractEnvelopeInfo(raw, handler.NetworkPassphrase)
+	info, err := extractEnvelopeInfo(raw, handler.NetworkPassphrase)
 	if err != nil {
 		return nil, &problem.P{
 			Type:   "transaction_malformed",
@@ -173,17 +128,17 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 			ErrorResultXDR:      resp.Error,
 			DiagnosticEventsXDR: resp.DiagnosticEvents,
 			TxStatus:            resp.Status,
-			HttpStatus:          HttpStatusCodeForError,
+			HttpStatus:          HTTPStatusCodeForError,
 			Hash:                info.hash,
 		}, nil
 	case proto.TXStatusPending, proto.TXStatusDuplicate, proto.TXStatusTryAgainLater:
 		var httpStatus int
 		if resp.Status == proto.TXStatusPending {
-			httpStatus = HttpStatusCodeForPending
+			httpStatus = HTTPStatusCodeForPending
 		} else if resp.Status == proto.TXStatusDuplicate {
-			httpStatus = HttpStatusCodeForDuplicate
+			httpStatus = HTTPStatusCodeForDuplicate
 		} else {
-			httpStatus = HttpStatusCodeForTryAgainLater
+			httpStatus = HTTPStatusCodeForTryAgainLater
 		}
 
 		return TransactionSubmissionResponse{

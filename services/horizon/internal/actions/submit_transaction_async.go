@@ -1,12 +1,11 @@
 package actions
 
 import (
-	"net/http"
-
-	"github.com/stellar/go/clients/stellarcore"
+	async_txsub "github.com/stellar/go/clients/stellarcore"
 	proto "github.com/stellar/go/protocols/stellarcore"
 	hProblem "github.com/stellar/go/services/horizon/internal/render/problem"
 	"github.com/stellar/go/support/render/problem"
+	"net/http"
 )
 
 const (
@@ -17,9 +16,9 @@ const (
 )
 
 type AsyncSubmitTransactionHandler struct {
-	NetworkPassphrase string
-	DisableTxSub      bool
-	CoreClient        stellarcore.ClientInterface
+	NetworkPassphrase     string
+	DisableTxSub          bool
+	CoreClientWithMetrics async_txsub.CoreClientWithMetricsInterface
 	CoreStateGetter
 }
 
@@ -89,7 +88,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 		return nil, hProblem.StaleHistory
 	}
 
-	resp, err := handler.CoreClient.SubmitTransaction(r.Context(), info.raw)
+	resp, err := handler.CoreClientWithMetrics.SubmitTransaction(r.Context(), info.raw)
 	if err != nil {
 		return nil, &problem.P{
 			Type:   "transaction_submission_failed",

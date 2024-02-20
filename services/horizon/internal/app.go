@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	async_txsub "github.com/stellar/go/services/horizon/internal/async-txsub"
 	"net/http"
 	"os"
 	"os/signal"
@@ -34,24 +33,23 @@ import (
 
 // App represents the root of the state of a horizon instance.
 type App struct {
-	done              chan struct{}
-	doneOnce          sync.Once
-	config            Config
-	webServer         *httpx.Server
-	historyQ          *history.Q
-	primaryHistoryQ   *history.Q
-	ctx               context.Context
-	cancel            func()
-	horizonVersion    string
-	coreState         corestate.Store
-	orderBookStream   *ingest.OrderBookStream
-	submitter         *txsub.System
-	paths             paths.Finder
-	ingester          ingest.System
-	reaper            *reap.System
-	ticks             *time.Ticker
-	ledgerState       *ledger.State
-	asyncTxSubMetrics async_txsub.AsyncTxSubMetrics
+	done            chan struct{}
+	doneOnce        sync.Once
+	config          Config
+	webServer       *httpx.Server
+	historyQ        *history.Q
+	primaryHistoryQ *history.Q
+	ctx             context.Context
+	cancel          func()
+	horizonVersion  string
+	coreState       corestate.Store
+	orderBookStream *ingest.OrderBookStream
+	submitter       *txsub.System
+	paths           paths.Finder
+	ingester        ingest.System
+	reaper          *reap.System
+	ticks           *time.Ticker
+	ledgerState     *ledger.State
 
 	// metrics
 	prometheusRegistry *prometheus.Registry

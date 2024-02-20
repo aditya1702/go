@@ -3,12 +3,11 @@ package httpx
 import (
 	"compress/flate"
 	"fmt"
+	"github.com/stellar/go/clients/stellarcore"
 	"net/http"
 	"net/http/pprof"
 	"net/url"
 	"time"
-
-	"github.com/stellar/go/clients/stellarcore"
 
 	"github.com/go-chi/chi"
 	chimiddleware "github.com/go-chi/chi/middleware"
@@ -339,10 +338,10 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 		NetworkPassphrase: config.NetworkPassphrase,
 		DisableTxSub:      config.DisableTxSub,
 		CoreStateGetter:   config.CoreGetter,
-		CoreClient: &stellarcore.Client{
+		CoreClientWithMetrics: stellarcore.NewCoreClientWithMetrics(stellarcore.Client{
 			HTTP: http.DefaultClient,
 			URL:  config.StellarCoreURL,
-		},
+		}, config.PrometheusRegistry),
 	}})
 
 	// Network state related endpoints

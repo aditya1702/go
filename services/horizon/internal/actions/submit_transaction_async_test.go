@@ -2,13 +2,13 @@ package actions
 
 import (
 	"context"
+	stellarcore "github.com/stellar/go/clients/stellarcore"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 
-	"github.com/stellar/go/clients/stellarcore"
 	"github.com/stellar/go/network"
 	proto "github.com/stellar/go/protocols/stellarcore"
 	"github.com/stellar/go/services/horizon/internal/corestate"
@@ -88,13 +88,13 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionFailed(t *testing.T)
 	coreStateGetter := new(coreStateGetterMock)
 	coreStateGetter.On("GetCoreState").Return(corestate.State{Synced: true})
 
-	mockCoreClient := &stellarcore.MockClient{}
-	mockCoreClient.On("SubmitTransaction", context.Background(), TxXDR).Return(&proto.TXResponse{}, errors.Errorf("submission error"))
+	mockCoreClientWithMetrics := &stellarcore.MockCoreClientWithMetrics{}
+	mockCoreClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR).Return(&proto.TXResponse{}, errors.Errorf("submission error"))
 
 	handler := AsyncSubmitTransactionHandler{
-		CoreStateGetter:   coreStateGetter,
-		NetworkPassphrase: network.PublicNetworkPassphrase,
-		CoreClient:        mockCoreClient,
+		CoreStateGetter:       coreStateGetter,
+		NetworkPassphrase:     network.PublicNetworkPassphrase,
+		CoreClientWithMetrics: mockCoreClientWithMetrics,
 	}
 
 	request := createRequest()
@@ -112,15 +112,15 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionException(t *testing
 	coreStateGetter := new(coreStateGetterMock)
 	coreStateGetter.On("GetCoreState").Return(corestate.State{Synced: true})
 
-	mockCoreClient := &stellarcore.MockClient{}
-	mockCoreClient.On("SubmitTransaction", context.Background(), TxXDR).Return(&proto.TXResponse{
+	mockCoreClientWithMetrics := &stellarcore.MockCoreClientWithMetrics{}
+	mockCoreClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR).Return(&proto.TXResponse{
 		Exception: "some-exception",
 	}, nil)
 
 	handler := AsyncSubmitTransactionHandler{
-		CoreStateGetter:   coreStateGetter,
-		NetworkPassphrase: network.PublicNetworkPassphrase,
-		CoreClient:        mockCoreClient,
+		CoreStateGetter:       coreStateGetter,
+		NetworkPassphrase:     network.PublicNetworkPassphrase,
+		CoreClientWithMetrics: mockCoreClientWithMetrics,
 	}
 
 	request := createRequest()
@@ -190,13 +190,13 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 	}
 
 	for _, testCase := range successCases {
-		mockCoreClient := &stellarcore.MockClient{}
-		mockCoreClient.On("SubmitTransaction", context.Background(), TxXDR).Return(testCase.mockCoreResponse, nil)
+		mockCoreClientWithMetrics := &stellarcore.MockCoreClientWithMetrics{}
+		mockCoreClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR).Return(testCase.mockCoreResponse, nil)
 
 		handler := AsyncSubmitTransactionHandler{
-			NetworkPassphrase: network.PublicNetworkPassphrase,
-			CoreClient:        mockCoreClient,
-			CoreStateGetter:   coreStateGetter,
+			NetworkPassphrase:     network.PublicNetworkPassphrase,
+			CoreClientWithMetrics: mockCoreClientWithMetrics,
+			CoreStateGetter:       coreStateGetter,
 		}
 
 		request := createRequest()

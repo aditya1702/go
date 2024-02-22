@@ -4,14 +4,16 @@ import (
 	"context"
 	"github.com/prometheus/client_golang/prometheus"
 	proto "github.com/stellar/go/protocols/stellarcore"
+	"github.com/stellar/go/xdr"
 	"time"
 )
 
-type CoreClientWithMetricsInterface interface {
-	SubmitTransaction(ctx context.Context, envelope string) (resp *proto.TXResponse, err error)
+type ClientWithMetricsInterface interface {
+	SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (resp *proto.TXResponse, err error)
+	UpdateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error)
 }
 
-type CoreClientWithMetrics struct {
+type ClientWithMetrics struct {
 	CoreClient ClientInterface
 
 	AsyncTxSubMetrics struct {
@@ -37,11 +39,15 @@ type CoreClientWithMetrics struct {
 	}
 }
 
-func (c *CoreClientWithMetrics) SubmitTransaction(ctx context.Context, envelope string) (*proto.TXResponse, error) {
+func (c *ClientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (*proto.TXResponse, error) {
 	startTime := time.Now()
-	response, err := c.CoreClient.SubmitTransaction(ctx, envelope)
-	duration := time.Since(startTime).Seconds()
+	response, err := c.CoreClient.SubmitTransaction(ctx, rawTx)
+	c.UpdateTxSubMetrics(time.Since(startTime).Seconds(), envelope, response, err)
 
+	return response, err
+}
+
+func (c *ClientWithMetrics) UpdateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
 	var label prometheus.Labels
 	if err != nil {
 		label = prometheus.Labels{"status": "request_error"}
@@ -52,10 +58,19 @@ func (c *CoreClientWithMetrics) SubmitTransaction(ctx context.Context, envelope 
 	}
 
 	c.AsyncTxSubMetrics.AsyncSubmissionDuration.With(label).Observe(duration)
-	return response, err
+	c.AsyncTxSubMetrics.AsyncSubmissionsCounter.With(label).Inc()
+
+	switch envelope.Type {
+	case xdr.EnvelopeTypeEnvelopeTypeTxV0:
+		c.AsyncTxSubMetrics.AsyncV0TransactionsCounter.With(label).Inc()
+	case xdr.EnvelopeTypeEnvelopeTypeTx:
+		c.AsyncTxSubMetrics.AsyncV1TransactionsCounter.With(label).Inc()
+	case xdr.EnvelopeTypeEnvelopeTypeTxFeeBump:
+		c.AsyncTxSubMetrics.AsyncFeeBumpTransactionsCounter.With(label).Inc()
+	}
 }
 
-func NewCoreClientWithMetrics(client Client, registry *prometheus.Registry) *CoreClientWithMetrics {
+func NewClientWithMetrics(client Client, registry *prometheus.Registry) *ClientWithMetrics {
 	asyncSubmissionDuration := prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Namespace:  "horizon",
 		Subsystem:  "async_txsub",
@@ -96,7 +111,7 @@ func NewCoreClientWithMetrics(client Client, registry *prometheus.Registry) *Cor
 		asyncFeeBumpTransactionsCounter,
 	)
 
-	return &CoreClientWithMetrics{
+	return &ClientWithMetrics{
 		CoreClient: &client,
 		AsyncTxSubMetrics: struct {
 			AsyncSubmissionDuration         *prometheus.SummaryVec

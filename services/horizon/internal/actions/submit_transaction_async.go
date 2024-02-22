@@ -16,9 +16,9 @@ const (
 )
 
 type AsyncSubmitTransactionHandler struct {
-	NetworkPassphrase     string
-	DisableTxSub          bool
-	CoreClientWithMetrics async_txsub.CoreClientWithMetricsInterface
+	NetworkPassphrase string
+	DisableTxSub      bool
+	ClientWithMetrics async_txsub.ClientWithMetricsInterface
 	CoreStateGetter
 }
 
@@ -88,7 +88,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 		return nil, hProblem.StaleHistory
 	}
 
-	resp, err := handler.CoreClientWithMetrics.SubmitTransaction(r.Context(), info.raw)
+	resp, err := handler.ClientWithMetrics.SubmitTransaction(r.Context(), info.raw, info.parsed)
 	if err != nil {
 		return nil, &problem.P{
 			Type:   "transaction_submission_failed",
@@ -97,7 +97,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 			Detail: "Could not submit transaction to stellar-core. " +
 				"The `extras.error` field on this response contains further " +
 				"details.  Descriptions of each code can be found at: " +
-				"https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-v2/transaction_submission_failed",
+				"https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-async/transaction_submission_failed",
 			Extras: map[string]interface{}{
 				"envelope_xdr": raw,
 				"error":        err,
@@ -113,7 +113,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 			Detail: "Received exception from stellar-core." +
 				"The `extras.error` field on this response contains further " +
 				"details.  Descriptions of each code can be found at: " +
-				"https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-v2/transaction_submission_exception",
+				"https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-async/transaction_submission_exception",
 			Extras: map[string]interface{}{
 				"envelope_xdr": raw,
 				"error":        resp.Exception,
@@ -153,7 +153,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 			Detail: "Received invalid status from stellar-core." +
 				"The `extras.error` field on this response contains further " +
 				"details.  Descriptions of each code can be found at: " +
-				"https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-v2/transaction_submission_invalid_status",
+				"https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-async/transaction_submission_invalid_status",
 			Extras: map[string]interface{}{
 				"envelope_xdr": raw,
 				"error":        resp.Error,

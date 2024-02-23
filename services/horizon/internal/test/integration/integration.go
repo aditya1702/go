@@ -1151,6 +1151,22 @@ func (i *Test) SubmitMultiSigTransaction(
 	return i.Client().SubmitTransaction(tx)
 }
 
+func (i *Test) AsyncSubmitTransaction(
+	signer *keypair.Full, txParams txnbuild.TransactionParams,
+) (proto.AsyncTransactionSubmissionResponse, error) {
+	return i.AsyncSubmitMultiSigTransaction([]*keypair.Full{signer}, txParams)
+}
+
+func (i *Test) AsyncSubmitMultiSigTransaction(
+	signers []*keypair.Full, txParams txnbuild.TransactionParams,
+) (proto.AsyncTransactionSubmissionResponse, error) {
+	tx, err := i.CreateSignedTransaction(signers, txParams)
+	if err != nil {
+		return proto.AsyncTransactionSubmissionResponse{}, err
+	}
+	return i.Client().AsyncSubmitTransaction(tx)
+}
+
 func (i *Test) MustSubmitMultiSigTransaction(
 	signers []*keypair.Full, txParams txnbuild.TransactionParams,
 ) proto.Transaction {

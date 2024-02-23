@@ -88,8 +88,11 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionFailed(t *testing.T)
 	coreStateGetter := new(coreStateGetterMock)
 	coreStateGetter.On("GetCoreState").Return(corestate.State{Synced: true})
 
+	info, err := extractEnvelopeInfo(TxXDR, network.TestNetworkPassphrase)
+	assert.NoError(t, err)
+
 	MockClientWithMetrics := &stellarcore.MockClientWithMetrics{}
-	MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR).Return(&proto.TXResponse{}, errors.Errorf("submission error"))
+	MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR, info.parsed).Return(&proto.TXResponse{}, errors.Errorf("submission error"))
 
 	handler := AsyncSubmitTransactionHandler{
 		CoreStateGetter:   coreStateGetter,
@@ -100,7 +103,7 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionFailed(t *testing.T)
 	request := createRequest()
 	w := httptest.NewRecorder()
 
-	_, err := handler.GetResource(w, request)
+	_, err = handler.GetResource(w, request)
 	assert.NotNil(t, err)
 	assert.IsType(t, &problem.P{}, err)
 	p := err.(*problem.P)
@@ -112,8 +115,11 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionException(t *testing
 	coreStateGetter := new(coreStateGetterMock)
 	coreStateGetter.On("GetCoreState").Return(corestate.State{Synced: true})
 
+	info, err := extractEnvelopeInfo(TxXDR, network.TestNetworkPassphrase)
+	assert.NoError(t, err)
+
 	MockClientWithMetrics := &stellarcore.MockClientWithMetrics{}
-	MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR).Return(&proto.TXResponse{
+	MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR, info.parsed).Return(&proto.TXResponse{
 		Exception: "some-exception",
 	}, nil)
 
@@ -126,7 +132,7 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionException(t *testing
 	request := createRequest()
 	w := httptest.NewRecorder()
 
-	_, err := handler.GetResource(w, request)
+	_, err = handler.GetResource(w, request)
 	assert.NotNil(t, err)
 	assert.IsType(t, &problem.P{}, err)
 	p := err.(*problem.P)
@@ -138,9 +144,12 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 	coreStateGetter := new(coreStateGetterMock)
 	coreStateGetter.On("GetCoreState").Return(corestate.State{Synced: true})
 
+	info, err := extractEnvelopeInfo(TxXDR, network.TestNetworkPassphrase)
+	assert.NoError(t, err)
+
 	successCases := []struct {
 		mockCoreResponse *proto.TXResponse
-		expectedResponse TransactionSubmissionResponse
+		expectedResponse AsyncTransactionSubmissionResponse
 	}{
 		{
 			mockCoreResponse: &proto.TXResponse{
@@ -149,7 +158,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 				Status:           proto.TXStatusError,
 				DiagnosticEvents: "test-diagnostic-events",
 			},
-			expectedResponse: TransactionSubmissionResponse{
+			expectedResponse: AsyncTransactionSubmissionResponse{
 				ErrorResultXDR:      "test-error",
 				DiagnosticEventsXDR: "test-diagnostic-events",
 				TxStatus:            proto.TXStatusError,
@@ -161,7 +170,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			mockCoreResponse: &proto.TXResponse{
 				Status: proto.TXStatusPending,
 			},
-			expectedResponse: TransactionSubmissionResponse{
+			expectedResponse: AsyncTransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusPending,
 				HttpStatus: HTTPStatusCodeForPending,
 				Hash:       TxHash,
@@ -171,7 +180,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			mockCoreResponse: &proto.TXResponse{
 				Status: proto.TXStatusDuplicate,
 			},
-			expectedResponse: TransactionSubmissionResponse{
+			expectedResponse: AsyncTransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusDuplicate,
 				HttpStatus: HTTPStatusCodeForDuplicate,
 				Hash:       TxHash,
@@ -181,7 +190,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			mockCoreResponse: &proto.TXResponse{
 				Status: proto.TXStatusTryAgainLater,
 			},
-			expectedResponse: TransactionSubmissionResponse{
+			expectedResponse: AsyncTransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusTryAgainLater,
 				HttpStatus: HTTPStatusCodeForTryAgainLater,
 				Hash:       TxHash,
@@ -191,7 +200,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 
 	for _, testCase := range successCases {
 		MockClientWithMetrics := &stellarcore.MockClientWithMetrics{}
-		MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR).Return(testCase.mockCoreResponse, nil)
+		MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR, info.parsed).Return(testCase.mockCoreResponse, nil)
 
 		handler := AsyncSubmitTransactionHandler{
 			NetworkPassphrase: network.PublicNetworkPassphrase,

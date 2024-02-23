@@ -22,9 +22,9 @@ type AsyncSubmitTransactionHandler struct {
 	CoreStateGetter
 }
 
-// TransactionSubmissionResponse represents the response returned by Horizon
-// when using the transaction-submission-v2 endpoint.
-type TransactionSubmissionResponse struct {
+// AsyncTransactionSubmissionResponse represents the response returned by Horizon
+// when using the transaction-submission-async endpoint.
+type AsyncTransactionSubmissionResponse struct {
 	// ErrorResultXDR is present only if Status is equal to proto.TXStatusError.
 	// ErrorResultXDR is a TransactionResult xdr string which contains details on why
 	// the transaction could not be accepted by stellar-core.
@@ -123,7 +123,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 
 	switch resp.Status {
 	case proto.TXStatusError:
-		return TransactionSubmissionResponse{
+		return AsyncTransactionSubmissionResponse{
 			ErrorResultXDR:      resp.Error,
 			DiagnosticEventsXDR: resp.DiagnosticEvents,
 			TxStatus:            resp.Status,
@@ -140,7 +140,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 			httpStatus = HTTPStatusCodeForTryAgainLater
 		}
 
-		return TransactionSubmissionResponse{
+		return AsyncTransactionSubmissionResponse{
 			TxStatus:   resp.Status,
 			HttpStatus: httpStatus,
 			Hash:       info.hash,

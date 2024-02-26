@@ -521,8 +521,7 @@ func (c *Client) SubmitTransactionWithOptions(transaction *txnbuild.Transaction,
 	return c.SubmitTransactionXDR(txeBase64)
 }
 
-// AsyncSubmitTransactionXDR submits a transaction represented as a base64 XDR string to the network. err can be either error object or horizon.Error object.
-// See https://developers.stellar.org/api/resources/transactions/post/
+// AsyncSubmitTransactionXDR submits a base64 XDR transaction using the transactions-async endpoint. err can be either error object or horizon.Error object.
 func (c *Client) AsyncSubmitTransactionXDR(transactionXdr string) (txResp hProtocol.AsyncTransactionSubmissionResponse,
 	err error) {
 	request := submitRequest{endpoint: "transactions-async", transactionXdr: transactionXdr}
@@ -530,23 +529,19 @@ func (c *Client) AsyncSubmitTransactionXDR(transactionXdr string) (txResp hProto
 	return
 }
 
-// AsyncSubmitFeeBumpTransaction submits a fee bump transaction to the network. err can be either an
+// AsyncSubmitFeeBumpTransaction submits an async fee bump transaction to the network. err can be either an
 // error object or a horizon.Error object.
 //
 // This function will always check if the destination account requires a memo in the transaction as
 // defined in SEP0029: https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md
 //
 // If you want to skip this check, use SubmitTransactionWithOptions.
-//
-// See https://developers.stellar.org/api/resources/transactions/post/
 func (c *Client) AsyncSubmitFeeBumpTransaction(transaction *txnbuild.FeeBumpTransaction) (txResp hProtocol.AsyncTransactionSubmissionResponse, err error) {
 	return c.AsyncSubmitFeeBumpTransactionWithOptions(transaction, SubmitTxOpts{})
 }
 
-// AsyncSubmitFeeBumpTransactionWithOptions submits a fee bump transaction to the network, allowing
+// AsyncSubmitFeeBumpTransactionWithOptions submits an async fee bump transaction to the network, allowing
 // you to pass SubmitTxOpts. err can be either an error object or a horizon.Error object.
-//
-// See https://developers.stellar.org/api/resources/transactions/post/
 func (c *Client) AsyncSubmitFeeBumpTransactionWithOptions(transaction *txnbuild.FeeBumpTransaction, opts SubmitTxOpts) (txResp hProtocol.AsyncTransactionSubmissionResponse, err error) {
 	// only check if memo is required if skip is false and the inner transaction
 	// doesn't have a memo.
@@ -566,23 +561,19 @@ func (c *Client) AsyncSubmitFeeBumpTransactionWithOptions(transaction *txnbuild.
 	return c.AsyncSubmitTransactionXDR(txeBase64)
 }
 
-// AsyncSubmitTransaction submits a transaction to the network. err can be either an
+// AsyncSubmitTransaction submits an async transaction to the network. err can be either an
 // error object or a horizon.Error object.
 //
 // This function will always check if the destination account requires a memo in the transaction as
 // defined in SEP0029: https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md
 //
 // If you want to skip this check, use SubmitTransactionWithOptions.
-//
-// See https://developers.stellar.org/api/resources/transactions/post/
 func (c *Client) AsyncSubmitTransaction(transaction *txnbuild.Transaction) (txResp hProtocol.AsyncTransactionSubmissionResponse, err error) {
 	return c.AsyncSubmitTransactionWithOptions(transaction, SubmitTxOpts{})
 }
 
-// AsyncSubmitTransactionWithOptions submits a transaction to the network, allowing
+// AsyncSubmitTransactionWithOptions submits an async transaction to the network, allowing
 // you to pass SubmitTxOpts. err can be either an error object or a horizon.Error object.
-//
-// See https://developers.stellar.org/api/resources/transactions/post/
 func (c *Client) AsyncSubmitTransactionWithOptions(transaction *txnbuild.Transaction, opts SubmitTxOpts) (txResp hProtocol.AsyncTransactionSubmissionResponse, err error) {
 	// only check if memo is required if skip is false and the transaction
 	// doesn't have a memo.

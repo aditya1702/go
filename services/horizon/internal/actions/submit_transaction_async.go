@@ -1,7 +1,7 @@
 package actions
 
 import (
-	async_txsub "github.com/stellar/go/clients/stellarcore"
+	"github.com/stellar/go/clients/stellarcore"
 	proto "github.com/stellar/go/protocols/stellarcore"
 	hProblem "github.com/stellar/go/services/horizon/internal/render/problem"
 	"github.com/stellar/go/support/render/problem"
@@ -18,7 +18,7 @@ const (
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
-	ClientWithMetrics async_txsub.ClientWithMetricsInterface
+	ClientWithMetrics stellarcore.ClientWithMetricsInterface
 	CoreStateGetter
 }
 

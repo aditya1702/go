@@ -37,6 +37,8 @@ type horizonTransactionProcessor interface {
 
 type horizonLazyLoader interface {
 	Exec(ctx context.Context, session db.SessionInterface) error
+	Name() string
+	Stats() history.LoaderStats
 }
 
 type statsChangeProcessor struct {
@@ -49,9 +51,11 @@ func (statsChangeProcessor) Commit(ctx context.Context) error {
 
 type ledgerStats struct {
 	changeStats          ingest.StatsChangeProcessorResults
-	changeDurations      processorsRunDurations
+	changeDurations      runDurations
 	transactionStats     processors.StatsLedgerTransactionProcessorResults
-	transactionDurations processorsRunDurations
+	transactionDurations runDurations
+	loaderDurations      runDurations
+	loaderStats          map[string]history.LoaderStats
 	tradeStats           processors.TradeStats
 }
 
@@ -68,8 +72,10 @@ type ProcessorRunnerInterface interface {
 	) (ingest.StatsChangeProcessorResults, error)
 	RunTransactionProcessorsOnLedger(ledger xdr.LedgerCloseMeta) (
 		transactionStats processors.StatsLedgerTransactionProcessorResults,
-		transactionDurations processorsRunDurations,
+		transactionDurations runDurations,
 		tradeStats processors.TradeStats,
+		loaderDurations runDurations,
+		loaderStats map[string]history.LoaderStats,
 		err error,
 	)
 	RunTransactionProcessorsOnLedgers(ledgers []xdr.LedgerCloseMeta) error
@@ -111,7 +117,6 @@ func buildChangeProcessor(
 	source ingestionSource,
 	ledgerSequence uint32,
 	networkPassphrase string,
-	skipSorobanIngestion bool,
 ) *groupChangeProcessors {
 	statsChangeProcessor := &statsChangeProcessor{
 		StatsChangeProcessor: changeStats,
@@ -145,13 +150,13 @@ func (s *ProcessorRunner) buildTransactionProcessor(ledgersProcessor *processors
 
 	processors := []horizonTransactionProcessor{
 		statsLedgerTransactionProcessor,
-		processors.NewEffectProcessor(accountLoader, s.historyQ.NewEffectBatchInsertBuilder(), s.config.NetworkPassphrase, s.config.SkipSorobanIngestion),
+		processors.NewEffectProcessor(accountLoader, s.historyQ.NewEffectBatchInsertBuilder(), s.config.NetworkPassphrase),
 		ledgersProcessor,
-		processors.NewOperationProcessor(s.historyQ.NewOperationBatchInsertBuilder(), s.config.NetworkPassphrase, s.config.SkipSorobanIngestion),
+		processors.NewOperationProcessor(s.historyQ.NewOperationBatchInsertBuilder(), s.config.NetworkPassphrase),
 		tradeProcessor,
 		processors.NewParticipantsProcessor(accountLoader,
 			s.historyQ.NewTransactionParticipantsBatchInsertBuilder(), s.historyQ.NewOperationParticipantBatchInsertBuilder()),
-		processors.NewTransactionProcessor(s.historyQ.NewTransactionBatchInsertBuilder(), s.config.SkipSorobanIngestion),
+		processors.NewTransactionProcessor(s.historyQ.NewTransactionBatchInsertBuilder(), s.config.SkipTxmeta),
 		processors.NewClaimableBalancesTransactionProcessor(cbLoader,
 			s.historyQ.NewTransactionClaimableBalanceBatchInsertBuilder(), s.historyQ.NewOperationClaimableBalanceBatchInsertBuilder()),
 		processors.NewLiquidityPoolsTransactionProcessor(lpLoader,
@@ -173,10 +178,7 @@ func (s *ProcessorRunner) buildFilteredOutProcessor() *groupTransactionProcessor
 	// when in online mode, the submission result processor must always run (regardless of filtering)
 	var p []horizonTransactionProcessor
 	if s.config.EnableIngestionFiltering {
-		txSubProc := processors.NewTransactionFilteredTmpProcessor(
-			s.historyQ.NewTransactionFilteredTmpBatchInsertBuilder(),
-			s.config.SkipSorobanIngestion,
-		)
+		txSubProc := processors.NewTransactionFilteredTmpProcessor(s.historyQ.NewTransactionFilteredTmpBatchInsertBuilder(), s.config.SkipTxmeta)
 		p = append(p, txSubProc)
 	}
 
@@ -239,7 +241,6 @@ func (s *ProcessorRunner) RunHistoryArchiveIngestion(
 		historyArchiveSource,
 		checkpointLedger,
 		s.config.NetworkPassphrase,
-		s.config.SkipSorobanIngestion,
 	)
 
 	if checkpointLedger == 1 {
@@ -365,8 +366,10 @@ func (s *ProcessorRunner) streamLedger(ledger xdr.LedgerCloseMeta,
 
 func (s *ProcessorRunner) RunTransactionProcessorsOnLedger(ledger xdr.LedgerCloseMeta) (
 	transactionStats processors.StatsLedgerTransactionProcessorResults,
-	transactionDurations processorsRunDurations,
+	transactionDurations runDurations,
 	tradeStats processors.TradeStats,
+	loaderDurations runDurations,
+	loaderStats map[string]history.LoaderStats,
 	err error,
 ) {
 	// ensure capture of the ledger to history regardless of whether it has transactions.
@@ -399,7 +402,9 @@ func (s *ProcessorRunner) RunTransactionProcessorsOnLedger(ledger xdr.LedgerClos
 	for key, duration := range groupFilteredOutProcessors.processorsRunDurations {
 		transactionDurations[key] = duration
 	}
-	for key, duration := range groupTransactionFilterers.processorsRunDurations {
+	loaderStats = groupTransactionProcessors.loaderStats
+	loaderDurations = groupTransactionProcessors.loaderRunDurations
+	for key, duration := range groupTransactionFilterers.runDurations {
 		transactionDurations[key] = duration
 	}
 
@@ -498,20 +503,21 @@ func (s *ProcessorRunner) RunAllProcessorsOnLedger(ledger xdr.LedgerCloseMeta) (
 		ledgerSource,
 		ledger.LedgerSequence(),
 		s.config.NetworkPassphrase,
-		s.config.SkipSorobanIngestion,
 	)
 	err = s.runChangeProcessorOnLedger(groupChangeProcessors, ledger)
 	if err != nil {
 		return
 	}
 
-	transactionStats, transactionDurations, tradeStats, err := s.RunTransactionProcessorsOnLedger(ledger)
+	transactionStats, transactionDurations, tradeStats, loaderDurations, loaderStats, err := s.RunTransactionProcessorsOnLedger(ledger)
 
 	stats.changeStats = changeStatsProcessor.GetResults()
 	stats.changeDurations = groupChangeProcessors.processorsRunDurations
 	stats.transactionStats = transactionStats
 	stats.transactionDurations = transactionDurations
 	stats.tradeStats = tradeStats
+	stats.loaderDurations = loaderDurations
+	stats.loaderStats = loaderStats
 
 	return
 }

@@ -371,6 +371,15 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 		w.Header().Set("Content-Type", "application/openapi+yaml")
 		w.Write(p)
 	})
+	r.Internal.Get("/transactions-async", func(w http.ResponseWriter, r *http.Request) {
+		p, err := staticFiles.ReadFile("static/txsub_async_oapi.yaml")
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "application/openapi+yaml")
+		w.Write(p)
+	})
 	r.Internal.Get("/metrics", promhttp.HandlerFor(config.PrometheusRegistry, promhttp.HandlerOpts{}).ServeHTTP)
 	r.Internal.Get("/debug/pprof/heap", pprof.Index)
 	r.Internal.Get("/debug/pprof/profile", pprof.Profile)

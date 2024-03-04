@@ -2,45 +2,25 @@ package actions
 
 import (
 	"github.com/stellar/go/clients/stellarcore"
+	"github.com/stellar/go/protocols/horizon"
 	proto "github.com/stellar/go/protocols/stellarcore"
 	hProblem "github.com/stellar/go/services/horizon/internal/render/problem"
 	"github.com/stellar/go/support/render/problem"
 	"net/http"
 )
 
-const (
-	HTTPStatusCodeForPending       = http.StatusCreated
-	HTTPStatusCodeForDuplicate     = http.StatusConflict
-	HTTPStatusCodeForTryAgainLater = http.StatusServiceUnavailable
-	HTTPStatusCodeForError         = http.StatusBadRequest
-)
+var coreStatusToHTTPStatus = map[string]int{
+	proto.TXStatusPending:       http.StatusCreated,
+	proto.TXStatusDuplicate:     http.StatusConflict,
+	proto.TXStatusTryAgainLater: http.StatusServiceUnavailable,
+	proto.TXStatusError:         http.StatusBadRequest,
+}
 
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
 	ClientWithMetrics stellarcore.ClientWithMetricsInterface
 	CoreStateGetter
-}
-
-// AsyncTransactionSubmissionResponse represents the response returned by Horizon
-// when using the transaction-submission-async endpoint.
-type AsyncTransactionSubmissionResponse struct {
-	// ErrorResultXDR is present only if Status is equal to proto.TXStatusError.
-	// ErrorResultXDR is a TransactionResult xdr string which contains details on why
-	// the transaction could not be accepted by stellar-core.
-	ErrorResultXDR string `json:"errorResultXdr,omitempty"`
-	// DiagnosticEventsXDR is present only if Status is equal to proto.TXStatusError.
-	// DiagnosticEventsXDR is a base64-encoded slice of xdr.DiagnosticEvent
-	DiagnosticEventsXDR string `json:"diagnosticEventsXdr,omitempty"`
-	// TxStatus represents the status of the transaction submission returned by stellar-core.
-	// It can be one of: proto.TXStatusPending, proto.TXStatusDuplicate,
-	// proto.TXStatusTryAgainLater, or proto.TXStatusError.
-	TxStatus string `json:"tx_status"`
-	// HttpStatus represents the corresponding http status code.
-	HttpStatus int `json:"status"`
-	// Hash is a hash of the transaction which can be used to look up whether
-	// the transaction was included in the ledger.
-	Hash string `json:"hash"`
 }
 
 func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http.Request) (interface{}, error) {
@@ -123,26 +103,17 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 
 	switch resp.Status {
 	case proto.TXStatusError:
-		return AsyncTransactionSubmissionResponse{
+		return horizon.AsyncTransactionSubmissionResponse{
 			ErrorResultXDR:      resp.Error,
 			DiagnosticEventsXDR: resp.DiagnosticEvents,
 			TxStatus:            resp.Status,
-			HttpStatus:          HTTPStatusCodeForError,
+			HttpStatus:          coreStatusToHTTPStatus[resp.Status],
 			Hash:                info.hash,
 		}, nil
 	case proto.TXStatusPending, proto.TXStatusDuplicate, proto.TXStatusTryAgainLater:
-		var httpStatus int
-		if resp.Status == proto.TXStatusPending {
-			httpStatus = HTTPStatusCodeForPending
-		} else if resp.Status == proto.TXStatusDuplicate {
-			httpStatus = HTTPStatusCodeForDuplicate
-		} else {
-			httpStatus = HTTPStatusCodeForTryAgainLater
-		}
-
-		return AsyncTransactionSubmissionResponse{
+		return horizon.AsyncTransactionSubmissionResponse{
 			TxStatus:   resp.Status,
-			HttpStatus: httpStatus,
+			HttpStatus: coreStatusToHTTPStatus[resp.Status],
 			Hash:       info.hash,
 		}, nil
 	default:

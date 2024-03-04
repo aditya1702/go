@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 	stellarcore "github.com/stellar/go/clients/stellarcore"
+	"github.com/stellar/go/protocols/horizon"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -149,7 +150,7 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 
 	successCases := []struct {
 		mockCoreResponse *proto.TXResponse
-		expectedResponse AsyncTransactionSubmissionResponse
+		expectedResponse horizon.AsyncTransactionSubmissionResponse
 	}{
 		{
 			mockCoreResponse: &proto.TXResponse{
@@ -158,11 +159,11 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 				Status:           proto.TXStatusError,
 				DiagnosticEvents: "test-diagnostic-events",
 			},
-			expectedResponse: AsyncTransactionSubmissionResponse{
+			expectedResponse: horizon.AsyncTransactionSubmissionResponse{
 				ErrorResultXDR:      "test-error",
 				DiagnosticEventsXDR: "test-diagnostic-events",
 				TxStatus:            proto.TXStatusError,
-				HttpStatus:          HTTPStatusCodeForError,
+				HttpStatus:          http.StatusBadRequest,
 				Hash:                TxHash,
 			},
 		},
@@ -170,9 +171,9 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			mockCoreResponse: &proto.TXResponse{
 				Status: proto.TXStatusPending,
 			},
-			expectedResponse: AsyncTransactionSubmissionResponse{
+			expectedResponse: horizon.AsyncTransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusPending,
-				HttpStatus: HTTPStatusCodeForPending,
+				HttpStatus: http.StatusCreated,
 				Hash:       TxHash,
 			},
 		},
@@ -180,9 +181,9 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			mockCoreResponse: &proto.TXResponse{
 				Status: proto.TXStatusDuplicate,
 			},
-			expectedResponse: AsyncTransactionSubmissionResponse{
+			expectedResponse: horizon.AsyncTransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusDuplicate,
-				HttpStatus: HTTPStatusCodeForDuplicate,
+				HttpStatus: http.StatusConflict,
 				Hash:       TxHash,
 			},
 		},
@@ -190,9 +191,9 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 			mockCoreResponse: &proto.TXResponse{
 				Status: proto.TXStatusTryAgainLater,
 			},
-			expectedResponse: AsyncTransactionSubmissionResponse{
+			expectedResponse: horizon.AsyncTransactionSubmissionResponse{
 				TxStatus:   proto.TXStatusTryAgainLater,
-				HttpStatus: HTTPStatusCodeForTryAgainLater,
+				HttpStatus: http.StatusServiceUnavailable,
 				Hash:       TxHash,
 			},
 		},

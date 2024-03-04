@@ -109,7 +109,7 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionFailed(t *testing.T)
 	assert.IsType(t, &problem.P{}, err)
 	p := err.(*problem.P)
 	assert.Equal(t, "transaction_submission_failed", p.Type)
-	assert.Equal(t, http.StatusBadRequest, p.Status)
+	assert.Equal(t, http.StatusInternalServerError, p.Status)
 }
 
 func TestAsyncSubmitTransactionHandler_TransactionSubmissionException(t *testing.T) {
@@ -138,7 +138,7 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionException(t *testing
 	assert.IsType(t, &problem.P{}, err)
 	p := err.(*problem.P)
 	assert.Equal(t, "transaction_submission_exception", p.Type)
-	assert.Equal(t, http.StatusBadRequest, p.Status)
+	assert.Equal(t, http.StatusInternalServerError, p.Status)
 }
 
 func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {

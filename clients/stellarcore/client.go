@@ -30,15 +30,9 @@ type Client struct {
 }
 
 type ClientInterface interface {
-	Upgrade(ctx context.Context, version int) (err error)
-	GetLedgerEntry(ctx context.Context, ledgerKey xdr.LedgerKey) (proto.GetLedgerEntryResponse, error)
 	Info(ctx context.Context) (resp *proto.InfoResponse, err error)
-	SetCursor(ctx context.Context, id string, cursor int32) (err error)
 	SubmitTransaction(ctx context.Context, envelope string) (resp *proto.TXResponse, err error)
-	WaitForNetworkSync(ctx context.Context) error
 	ManualClose(ctx context.Context) (err error)
-	http() HTTP
-	simpleGet(ctx context.Context, newPath string, query url.Values) (*http.Request, error)
 }
 
 // drainReponse is a helper method for draining the body stream off the http

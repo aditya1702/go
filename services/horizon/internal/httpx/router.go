@@ -341,7 +341,7 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 		ClientWithMetrics: stellarcore.NewClientWithMetrics(stellarcore.Client{
 			HTTP: http.DefaultClient,
 			URL:  config.StellarCoreURL,
-		}, config.PrometheusRegistry),
+		}, config.PrometheusRegistry, "async_txsub"),
 	}})
 
 	// Network state related endpoints

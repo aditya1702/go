@@ -73,7 +73,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 		return nil, &problem.P{
 			Type:   "transaction_submission_failed",
 			Title:  "Transaction Submission Failed",
-			Status: http.StatusBadRequest,
+			Status: http.StatusInternalServerError,
 			Detail: "Could not submit transaction to stellar-core. " +
 				"The `extras.error` field on this response contains further " +
 				"details.  Descriptions of each code can be found at: " +
@@ -89,7 +89,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 		return nil, &problem.P{
 			Type:   "transaction_submission_exception",
 			Title:  "Transaction Submission Exception",
-			Status: http.StatusBadRequest,
+			Status: http.StatusInternalServerError,
 			Detail: "Received exception from stellar-core." +
 				"The `extras.error` field on this response contains further " +
 				"details.  Descriptions of each code can be found at: " +

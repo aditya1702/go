@@ -41,12 +41,12 @@ type ClientWithMetrics struct {
 func (c *ClientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (*proto.TXResponse, error) {
 	startTime := time.Now()
 	response, err := c.CoreClient.SubmitTransaction(ctx, rawTx)
-	c.UpdateTxSubMetrics(time.Since(startTime).Seconds(), envelope, response, err)
+	c.updateTxSubMetrics(time.Since(startTime).Seconds(), envelope, response, err)
 
 	return response, err
 }
 
-func (c *ClientWithMetrics) UpdateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
+func (c *ClientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
 	var label prometheus.Labels
 	if err != nil {
 		label = prometheus.Labels{"status": "request_error"}

@@ -17,13 +17,6 @@ import (
 // that submits directly to the stellar-core at `url` using the http client
 // `h`.
 func NewDefaultSubmitter(h *http.Client, url string, registry *prometheus.Registry) Submitter {
-	//return &submitter{
-	//	StellarCore: &stellarcore.Client{
-	//		HTTP: h,
-	//		URL:  url,
-	//	},
-	//	Log: log.DefaultLogger.WithField("service", "txsub.submitter"),
-	//}
 	return &submitter{
 		StellarCore: stellarcore.NewClientWithMetrics(stellarcore.Client{
 			HTTP: h,

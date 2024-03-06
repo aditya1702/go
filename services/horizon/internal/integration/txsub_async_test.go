@@ -5,6 +5,8 @@ import (
 	"github.com/stellar/go/services/horizon/internal/test/integration"
 	"github.com/stellar/go/txnbuild"
 	"github.com/stretchr/testify/assert"
+	"io"
+	"net/http"
 	"testing"
 )
 
@@ -115,4 +117,18 @@ func TestAsyncTxSub_SubmissionTryAgainLater(t *testing.T) {
 		HttpStatus:          503,
 		Hash:                "d5eb72a4c1832b89965850fff0bd9bba4b6ca102e7c89099dcaba5e7d7d2e049",
 	})
+}
+
+func TestAsyncTxSub_GetOpenAPISpecResponse(t *testing.T) {
+	itest := integration.NewTest(t, integration.Config{})
+	res, err := http.Get(itest.AsyncTxSubOpenAPISpecURL())
+	assert.NoError(t, err)
+	assert.Equal(t, res.StatusCode, 200)
+
+	bytes, err := io.ReadAll(res.Body)
+	res.Body.Close()
+	assert.NoError(t, err)
+
+	openAPISpec := string(bytes)
+	assert.Contains(t, openAPISpec, "openapi: 3.0.0")
 }

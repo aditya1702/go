@@ -8,11 +8,11 @@ import (
 	"time"
 )
 
-type ClientWithMetricsInterface interface {
+type ClientWithMetrics interface {
 	SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (resp *proto.TXResponse, err error)
 }
 
-type ClientWithMetrics struct {
+type clientWithMetrics struct {
 	CoreClient ClientInterface
 
 	TxSubMetrics struct {
@@ -38,7 +38,7 @@ type ClientWithMetrics struct {
 	}
 }
 
-func (c *ClientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (*proto.TXResponse, error) {
+func (c *clientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (*proto.TXResponse, error) {
 	startTime := time.Now()
 	response, err := c.CoreClient.SubmitTransaction(ctx, rawTx)
 	c.updateTxSubMetrics(time.Since(startTime).Seconds(), envelope, response, err)
@@ -46,7 +46,7 @@ func (c *ClientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string,
 	return response, err
 }
 
-func (c *ClientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
+func (c *clientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
 	var label prometheus.Labels
 	if err != nil {
 		label = prometheus.Labels{"status": "request_error"}
@@ -69,7 +69,7 @@ func (c *ClientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.Tr
 	}
 }
 
-func NewClientWithMetrics(client Client, registry *prometheus.Registry, prometheusSubsystem string) *ClientWithMetrics {
+func NewClientWithMetrics(client Client, registry *prometheus.Registry, prometheusSubsystem string) ClientWithMetrics {
 	submissionDuration := prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Namespace:  "horizon",
 		Subsystem:  prometheusSubsystem,
@@ -110,7 +110,7 @@ func NewClientWithMetrics(client Client, registry *prometheus.Registry, promethe
 		feeBumpTransactionsCounter,
 	)
 
-	return &ClientWithMetrics{
+	return &clientWithMetrics{
 		CoreClient: &client,
 		TxSubMetrics: struct {
 			SubmissionDuration         *prometheus.SummaryVec

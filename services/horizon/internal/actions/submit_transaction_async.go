@@ -19,7 +19,7 @@ var coreStatusToHTTPStatus = map[string]int{
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
-	ClientWithMetrics stellarcore.ClientWithMetricsInterface
+	ClientWithMetrics stellarcore.ClientWithMetrics
 	CoreStateGetter
 }
 

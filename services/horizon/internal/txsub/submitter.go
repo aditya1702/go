@@ -30,7 +30,7 @@ func NewDefaultSubmitter(h *http.Client, url string, registry *prometheus.Regist
 // submits directly to the configured stellar-core instance using the
 // configured http client.
 type submitter struct {
-	StellarCore stellarcore.ClientWithMetricsInterface
+	StellarCore stellarcore.ClientWithMetrics
 	Log         *log.Entry
 }
 

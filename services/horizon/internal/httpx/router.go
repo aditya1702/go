@@ -338,7 +338,7 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 		NetworkPassphrase: config.NetworkPassphrase,
 		DisableTxSub:      config.DisableTxSub,
 		CoreStateGetter:   config.CoreGetter,
-		ClientWithMetrics: stellarcore.NewClientWithMetrics(&stellarcore.Client{
+		ClientWithMetrics: stellarcore.NewClientWithMetrics(stellarcore.Client{
 			HTTP: http.DefaultClient,
 			URL:  config.StellarCoreURL,
 		}, config.PrometheusRegistry, "async_txsub"),

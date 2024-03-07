@@ -13,7 +13,7 @@ type ClientWithMetrics interface {
 }
 
 type clientWithMetrics struct {
-	CoreClient ClientInterface
+	CoreClient Client
 
 	TxSubMetrics struct {
 		// SubmissionDuration exposes timing metrics about the rate and latency of
@@ -69,7 +69,7 @@ func (c *clientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.Tr
 	}
 }
 
-func NewClientWithMetrics(client ClientInterface, registry *prometheus.Registry, prometheusSubsystem string) ClientWithMetrics {
+func NewClientWithMetrics(client Client, registry *prometheus.Registry, prometheusSubsystem string) ClientWithMetrics {
 	submissionDuration := prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Namespace:  "horizon",
 		Subsystem:  prometheusSubsystem,

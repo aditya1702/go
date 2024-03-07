@@ -69,7 +69,7 @@ func (c *clientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.Tr
 	}
 }
 
-func NewClientWithMetrics(client Client, registry *prometheus.Registry, prometheusSubsystem string) ClientWithMetrics {
+func NewClientWithMetrics(client ClientInterface, registry *prometheus.Registry, prometheusSubsystem string) ClientWithMetrics {
 	submissionDuration := prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Namespace:  "horizon",
 		Subsystem:  prometheusSubsystem,
@@ -111,7 +111,7 @@ func NewClientWithMetrics(client Client, registry *prometheus.Registry, promethe
 	)
 
 	return &clientWithMetrics{
-		CoreClient: &client,
+		CoreClient: client,
 		TxSubMetrics: struct {
 			SubmissionDuration         *prometheus.SummaryVec
 			SubmissionsCounter         *prometheus.CounterVec

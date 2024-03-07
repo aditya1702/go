@@ -18,7 +18,7 @@ import (
 // `h`.
 func NewDefaultSubmitter(h *http.Client, url string, registry *prometheus.Registry) Submitter {
 	return &submitter{
-		StellarCore: stellarcore.NewClientWithMetrics(stellarcore.Client{
+		StellarCore: stellarcore.NewClientWithMetrics(&stellarcore.Client{
 			HTTP: h,
 			URL:  url,
 		}, registry, "txsub"),

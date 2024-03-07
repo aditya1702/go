@@ -334,7 +334,7 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 	}})
 
 	// Async Transaction submission API
-	r.Method(http.MethodPost, "/transactions-async", ObjectActionHandler{actions.AsyncSubmitTransactionHandler{
+	r.Method(http.MethodPost, "/transactions_async", ObjectActionHandler{actions.AsyncSubmitTransactionHandler{
 		NetworkPassphrase: config.NetworkPassphrase,
 		DisableTxSub:      config.DisableTxSub,
 		CoreStateGetter:   config.CoreGetter,
@@ -371,7 +371,7 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 		w.Header().Set("Content-Type", "application/openapi+yaml")
 		w.Write(p)
 	})
-	r.Internal.Get("/transactions-async", func(w http.ResponseWriter, r *http.Request) {
+	r.Internal.Get("/transactions_async", func(w http.ResponseWriter, r *http.Request) {
 		p, err := staticFiles.ReadFile("static/txsub_async_oapi.yaml")
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)

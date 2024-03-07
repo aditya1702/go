@@ -543,10 +543,10 @@ func (c *Client) SubmitTransactionWithOptions(transaction *txnbuild.Transaction,
 	return c.SubmitTransactionXDR(txeBase64)
 }
 
-// AsyncSubmitTransactionXDR submits a base64 XDR transaction using the transactions-async endpoint. err can be either error object or horizon.Error object.
+// AsyncSubmitTransactionXDR submits a base64 XDR transaction using the transactions_async endpoint. err can be either error object or horizon.Error object.
 func (c *Client) AsyncSubmitTransactionXDR(transactionXdr string) (txResp hProtocol.AsyncTransactionSubmissionResponse,
 	err error) {
-	request := submitRequest{endpoint: "transactions-async", transactionXdr: transactionXdr}
+	request := submitRequest{endpoint: "transactions_async", transactionXdr: transactionXdr}
 	err = c.sendRequest(request, &txResp)
 	return
 }

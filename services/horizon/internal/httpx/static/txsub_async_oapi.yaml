@@ -3,7 +3,7 @@ info:
   title: Stellar Horizon Async Transaction Submission
   version: "1.0"
 paths:
-  /transactions-async:
+  /transactions_async:
     post:
       summary: Asynchronously submit a transaction to the Stellar network.
       tags:

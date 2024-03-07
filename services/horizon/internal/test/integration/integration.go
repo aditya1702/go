@@ -918,7 +918,7 @@ func (i *Test) MetricsURL() string {
 
 // AsyncTxSubOpenAPISpecURL returns the URL for getting the openAPI spec yaml for async-txsub endpoint.
 func (i *Test) AsyncTxSubOpenAPISpecURL() string {
-	return fmt.Sprintf("http://localhost:%d/transactions-async", i.AdminPort())
+	return fmt.Sprintf("http://localhost:%d/transactions_async", i.AdminPort())
 }
 
 // Master returns a keypair of the network masterKey account.

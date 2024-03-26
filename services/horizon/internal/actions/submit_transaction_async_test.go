@@ -29,7 +29,7 @@ func createRequest() *http.Request {
 
 	request, _ := http.NewRequest(
 		"POST",
-		"http://localhost:8000/v2/transactions",
+		"http://localhost:8000/v2/transactions_async",
 		strings.NewReader(form.Encode()),
 	)
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -163,7 +163,6 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 				ErrorResultXDR:      "test-error",
 				DiagnosticEventsXDR: "test-diagnostic-events",
 				TxStatus:            proto.TXStatusError,
-				HttpStatus:          http.StatusBadRequest,
 				Hash:                TxHash,
 			},
 		},
@@ -172,9 +171,8 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 				Status: proto.TXStatusPending,
 			},
 			expectedResponse: horizon.AsyncTransactionSubmissionResponse{
-				TxStatus:   proto.TXStatusPending,
-				HttpStatus: http.StatusCreated,
-				Hash:       TxHash,
+				TxStatus: proto.TXStatusPending,
+				Hash:     TxHash,
 			},
 		},
 		{
@@ -182,9 +180,8 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 				Status: proto.TXStatusDuplicate,
 			},
 			expectedResponse: horizon.AsyncTransactionSubmissionResponse{
-				TxStatus:   proto.TXStatusDuplicate,
-				HttpStatus: http.StatusConflict,
-				Hash:       TxHash,
+				TxStatus: proto.TXStatusDuplicate,
+				Hash:     TxHash,
 			},
 		},
 		{
@@ -192,9 +189,8 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 				Status: proto.TXStatusTryAgainLater,
 			},
 			expectedResponse: horizon.AsyncTransactionSubmissionResponse{
-				TxStatus:   proto.TXStatusTryAgainLater,
-				HttpStatus: http.StatusServiceUnavailable,
-				Hash:       TxHash,
+				TxStatus: proto.TXStatusTryAgainLater,
+				Hash:     TxHash,
 			},
 		},
 	}

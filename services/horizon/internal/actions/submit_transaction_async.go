@@ -9,13 +9,6 @@ import (
 	"net/http"
 )
 
-var coreStatusToHTTPStatus = map[string]int{
-	proto.TXStatusPending:       http.StatusCreated,
-	proto.TXStatusDuplicate:     http.StatusConflict,
-	proto.TXStatusTryAgainLater: http.StatusServiceUnavailable,
-	proto.TXStatusError:         http.StatusBadRequest,
-}
-
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
@@ -107,20 +100,18 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 			ErrorResultXDR:      resp.Error,
 			DiagnosticEventsXDR: resp.DiagnosticEvents,
 			TxStatus:            resp.Status,
-			HttpStatus:          coreStatusToHTTPStatus[resp.Status],
 			Hash:                info.hash,
 		}, nil
 	case proto.TXStatusPending, proto.TXStatusDuplicate, proto.TXStatusTryAgainLater:
 		return horizon.AsyncTransactionSubmissionResponse{
-			TxStatus:   resp.Status,
-			HttpStatus: coreStatusToHTTPStatus[resp.Status],
-			Hash:       info.hash,
+			TxStatus: resp.Status,
+			Hash:     info.hash,
 		}, nil
 	default:
 		return nil, &problem.P{
 			Type:   "transaction_submission_invalid_status",
 			Title:  "Transaction Submission Invalid Status",
-			Status: http.StatusBadRequest,
+			Status: http.StatusInternalServerError,
 			Detail: "Received invalid status from stellar-core." +
 				"The `extras.error` field on this response contains further " +
 				"details.  Descriptions of each code can be found at: " +

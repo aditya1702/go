@@ -581,8 +581,6 @@ type AsyncTransactionSubmissionResponse struct {
 	// It can be one of: proto.TXStatusPending, proto.TXStatusDuplicate,
 	// proto.TXStatusTryAgainLater, or proto.TXStatusError.
 	TxStatus string `json:"tx_status"`
-	// HttpStatus represents the corresponding http status code.
-	HttpStatus int `json:"status"`
 	// Hash is a hash of the transaction which can be used to look up whether
 	// the transaction was included in the ledger.
 	Hash string `json:"hash"`

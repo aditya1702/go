@@ -110,29 +110,23 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 	}
 
 	switch resp.Status {
-	case proto.TXStatusError:
-		logger.WithFields(log.F{
-			"envelope_xdr":     raw,
-			"error_result_xdr": resp.Error,
-			"status":           resp.Status,
-			"hash":             info.hash,
-		}).Error("Transaction submitted to stellar-core")
-		return horizon.AsyncTransactionSubmissionResponse{
-			ErrorResultXDR:      resp.Error,
-			DiagnosticEventsXDR: resp.DiagnosticEvents,
-			TxStatus:            resp.Status,
-			Hash:                info.hash,
-		}, nil
-	case proto.TXStatusPending, proto.TXStatusDuplicate, proto.TXStatusTryAgainLater:
-		logger.WithFields(log.F{
-			"envelope_xdr": raw,
-			"status":       resp.Status,
-			"hash":         info.hash,
-		}).Error("Transaction submitted to stellar-core")
-		return horizon.AsyncTransactionSubmissionResponse{
+	case proto.TXStatusError, proto.TXStatusPending, proto.TXStatusDuplicate, proto.TXStatusTryAgainLater:
+		response := horizon.AsyncTransactionSubmissionResponse{
 			TxStatus: resp.Status,
 			Hash:     info.hash,
-		}, nil
+		}
+
+		if resp.Status == proto.TXStatusError {
+			logger.WithFields(log.F{
+				"envelope_xdr": raw,
+				"error_xdr":    resp.Error,
+				"status":       resp.Status,
+				"hash":         info.hash,
+			}).Error("Transaction submission to stellar-core resulted in ERROR status")
+			response.ErrorResultXDR = resp.Error
+		}
+
+		return response, nil
 	default:
 		logger.WithField("envelope_xdr", raw).WithError(errors.Errorf(resp.Error)).Error("Received invalid submission status from stellar-core")
 		return nil, &problem.P{

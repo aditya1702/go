@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"net/http"
+
 	"github.com/stellar/go/clients/stellarcore"
 	"github.com/stellar/go/protocols/horizon"
 	proto "github.com/stellar/go/protocols/stellarcore"
@@ -8,7 +10,6 @@ import (
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/support/log"
 	"github.com/stellar/go/support/render/problem"
-	"net/http"
 )
 
 var (
@@ -26,18 +27,15 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 	logger.SetLevel(log.DebugLevel)
 
 	if err := validateBodyType(r); err != nil {
-		logger.WithError(err).Error("Could not validate request body type")
 		return nil, err
 	}
 
 	raw, err := getString(r, "tx")
 	if err != nil {
-		logger.WithError(err).Error("Could not read transaction string from request URL")
 		return nil, err
 	}
 
 	if handler.DisableTxSub {
-		logger.WithField("envelope_xdr", raw).Error("Could not submit transaction: transaction submission is disabled")
 		return nil, &problem.P{
 			Type:   "transaction_submission_disabled",
 			Title:  "Transaction Submission Disabled",
@@ -52,7 +50,6 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 
 	info, err := extractEnvelopeInfo(raw, handler.NetworkPassphrase)
 	if err != nil {
-		logger.WithField("envelope_xdr", raw).Error("Could not parse transaction envelope")
 		return nil, &problem.P{
 			Type:   "transaction_malformed",
 			Title:  "Transaction Malformed",
@@ -70,13 +67,11 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 
 	coreState := handler.GetCoreState()
 	if !coreState.Synced {
-		logger.WithField("envelope_xdr", raw).Error("Stellar-core is not synced")
 		return nil, hProblem.StaleHistory
 	}
 
 	resp, err := handler.ClientWithMetrics.SubmitTransaction(r.Context(), info.raw, info.parsed)
 	if err != nil {
-		logger.WithField("envelope_xdr", raw).WithError(err).Error("Transaction submission to stellar-core failed")
 		return nil, &problem.P{
 			Type:   "transaction_submission_failed",
 			Title:  "Transaction Submission Failed",
@@ -93,7 +88,6 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 	}
 
 	if resp.IsException() {
-		logger.WithField("envelope_xdr", raw).WithError(errors.Errorf(resp.Exception)).Error("Transaction submission exception from stellar-core")
 		return nil, &problem.P{
 			Type:   "transaction_submission_exception",
 			Title:  "Transaction Submission Exception",

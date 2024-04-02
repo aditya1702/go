@@ -3,11 +3,12 @@ package httpx
 import (
 	"compress/flate"
 	"fmt"
-	"github.com/stellar/go/clients/stellarcore"
 	"net/http"
 	"net/http/pprof"
 	"net/url"
 	"time"
+
+	"github.com/stellar/go/clients/stellarcore"
 
 	"github.com/go-chi/chi"
 	chimiddleware "github.com/go-chi/chi/middleware"
@@ -388,7 +389,7 @@ func (r *Router) addRoutes(config *RouterConfig, rateLimiter *throttled.HTTPRate
 	r.Internal.Get("/transactions_async", func(w http.ResponseWriter, r *http.Request) {
 		p, err := staticFiles.ReadFile("static/txsub_async_oapi.yaml")
 		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/openapi+yaml")

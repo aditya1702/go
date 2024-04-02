@@ -3,10 +3,11 @@ package actions
 import (
 	"context"
 	"encoding/hex"
-	"github.com/stellar/go/network"
-	"github.com/stellar/go/support/errors"
 	"mime"
 	"net/http"
+
+	"github.com/stellar/go/network"
+	"github.com/stellar/go/support/errors"
 
 	"github.com/stellar/go/protocols/horizon"
 	"github.com/stellar/go/protocols/stellarcore"
@@ -28,6 +29,10 @@ type SubmitTransactionHandler struct {
 	DisableTxSub      bool
 	CoreStateGetter
 	SkipTxMeta bool
+}
+
+func (handler SubmitTransactionHandler) HttpStatus(resp interface{}) int {
+	return http.StatusOK
 }
 
 type envelopeInfo struct {

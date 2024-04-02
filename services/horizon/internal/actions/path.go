@@ -29,6 +29,10 @@ type FindPathsHandler struct {
 	PathFinder           paths.Finder
 }
 
+func (handler FindPathsHandler) HttpStatus(resp interface{}) int {
+	return http.StatusOK
+}
+
 // StrictReceivePathsQuery query struct for paths/strict-send end-point
 type StrictReceivePathsQuery struct {
 	SourceAssets           string `schema:"source_assets" valid:"-"`
@@ -206,6 +210,10 @@ type FindFixedPathsHandler struct {
 	MaxAssetsParamLength int
 	SetLastLedgerHeader  bool
 	PathFinder           paths.Finder
+}
+
+func (handler FindFixedPathsHandler) HttpStatus(resp interface{}) int {
+	return http.StatusOK
 }
 
 // DestinationAssetsOrDestinationAccountProblem custom error where destination asserts or accounts are required

@@ -12,11 +12,26 @@ import (
 	"github.com/stellar/go/support/render/problem"
 )
 
+var coreStatusToHTTPStatus = map[string]int{
+	proto.TXStatusPending:       http.StatusCreated,
+	proto.TXStatusDuplicate:     http.StatusConflict,
+	proto.TXStatusTryAgainLater: http.StatusServiceUnavailable,
+	proto.TXStatusError:         http.StatusBadRequest,
+}
+
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
 	ClientWithMetrics stellarcore.ClientWithMetrics
 	CoreStateGetter
+}
+
+func (handler AsyncSubmitTransactionHandler) HttpStatus(resp interface{}) int {
+	statusCode := http.StatusOK
+	if asyncTxSubResponse, ok := resp.(horizon.AsyncTransactionSubmissionResponse); ok {
+		statusCode = coreStatusToHTTPStatus[asyncTxSubResponse.TxStatus]
+	}
+	return statusCode
 }
 
 func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http.Request) (interface{}, error) {

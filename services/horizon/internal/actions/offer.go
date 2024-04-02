@@ -21,6 +21,10 @@ type OfferByIDQuery struct {
 // GetOfferByID is the action handler for the /offers/{id} endpoint
 type GetOfferByID struct{}
 
+func (handler GetOfferByID) HttpStatus(resp interface{}) int {
+	return http.StatusOK
+}
+
 // GetResource returns an offer by id.
 func (handler GetOfferByID) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
 	ctx := r.Context()

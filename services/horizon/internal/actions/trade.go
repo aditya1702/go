@@ -280,6 +280,10 @@ type GetTradeAggregationsHandler struct {
 	CoreStateGetter
 }
 
+func (handler GetTradeAggregationsHandler) HttpStatus(resp interface{}) int {
+	return http.StatusOK
+}
+
 // GetResource returns a page of trade aggregations
 func (handler GetTradeAggregationsHandler) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
 	ctx := r.Context()

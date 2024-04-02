@@ -17,6 +17,10 @@ type GetRootHandler struct {
 	HorizonVersion    string
 }
 
+func (handler GetRootHandler) HttpStatus(resp interface{}) int {
+	return http.StatusOK
+}
+
 func (handler GetRootHandler) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
 	var res horizon.Root
 	templates := map[string]string{

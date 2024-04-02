@@ -12,10 +12,6 @@ import (
 	"github.com/stellar/go/support/render/problem"
 )
 
-var (
-	logger = log.New().WithField("service", "async-txsub")
-)
-
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
@@ -24,7 +20,7 @@ type AsyncSubmitTransactionHandler struct {
 }
 
 func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http.Request) (interface{}, error) {
-	logger.SetLevel(log.DebugLevel)
+	logger := log.Ctx(r.Context())
 
 	if err := validateBodyType(r); err != nil {
 		return nil, err

@@ -2,10 +2,12 @@ package stellarcore
 
 import (
 	"context"
+	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
+
 	proto "github.com/stellar/go/protocols/stellarcore"
 	"github.com/stellar/go/xdr"
-	"time"
 )
 
 type ClientWithMetrics interface {
@@ -43,7 +45,7 @@ func (c *clientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string,
 }
 
 func (c *clientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
-	var label prometheus.Labels
+	label := prometheus.Labels{}
 	if err != nil {
 		label["status"] = "request_error"
 	} else if response.IsException() {

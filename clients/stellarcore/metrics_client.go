@@ -21,18 +21,6 @@ type clientWithMetrics struct {
 		// SubmissionDuration exposes timing metrics about the rate and latency of
 		// submissions to stellar-core
 		SubmissionDuration *prometheus.SummaryVec
-
-		// V0TransactionsCounter tracks the rate of v0 transaction envelopes that
-		// have been submitted to this process
-		V0TransactionsCounter *prometheus.CounterVec
-
-		// V1TransactionsCounter tracks the rate of v1 transaction envelopes that
-		// have been submitted to this process
-		V1TransactionsCounter *prometheus.CounterVec
-
-		// FeeBumpTransactionsCounter tracks the rate of fee bump transaction envelopes that
-		// have been submitted to this process
-		FeeBumpTransactionsCounter *prometheus.CounterVec
 	}
 }
 
@@ -82,10 +70,7 @@ func NewClientWithMetrics(client Client, registry *prometheus.Registry, promethe
 	return &clientWithMetrics{
 		CoreClient: client,
 		TxSubMetrics: struct {
-			SubmissionDuration         *prometheus.SummaryVec
-			V0TransactionsCounter      *prometheus.CounterVec
-			V1TransactionsCounter      *prometheus.CounterVec
-			FeeBumpTransactionsCounter *prometheus.CounterVec
+			SubmissionDuration *prometheus.SummaryVec
 		}{
 			SubmissionDuration: submissionDuration,
 		},

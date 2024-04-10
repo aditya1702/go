@@ -2,20 +2,22 @@ package actions
 
 import (
 	"context"
-	stellarcore "github.com/stellar/go/clients/stellarcore"
-	"github.com/stellar/go/protocols/horizon"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 
+	stellarcore "github.com/stellar/go/clients/stellarcore"
+	"github.com/stellar/go/protocols/horizon"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/stellar/go/network"
 	proto "github.com/stellar/go/protocols/stellarcore"
 	"github.com/stellar/go/services/horizon/internal/corestate"
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/support/render/problem"
-	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -29,7 +31,7 @@ func createRequest() *http.Request {
 
 	request, _ := http.NewRequest(
 		"POST",
-		"http://localhost:8000/v2/transactions_async",
+		"http://localhost:8000/transactions_async",
 		strings.NewReader(form.Encode()),
 	)
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")

@@ -101,6 +101,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 	}
 
 	if resp.IsException() {
+		logger.WithField("envelope_xdr", raw).WithError(errors.Errorf(resp.Exception)).Error("Transaction submission exception from stellar-core")
 		return nil, &problem.P{
 			Type:   "transaction_submission_exception",
 			Title:  "Transaction Submission Exception",
@@ -124,12 +125,6 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 		}
 
 		if resp.Status == proto.TXStatusError {
-			logger.WithFields(log.F{
-				"envelope_xdr": raw,
-				"error_xdr":    resp.Error,
-				"status":       resp.Status,
-				"hash":         info.hash,
-			}).Error("Transaction submission to stellar-core resulted in ERROR status")
 			response.ErrorResultXDR = resp.Error
 		}
 

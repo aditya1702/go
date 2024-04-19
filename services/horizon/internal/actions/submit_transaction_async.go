@@ -35,6 +35,7 @@ func (handler AsyncSubmitTransactionHandler) HttpStatus(resp interface{}) int {
 }
 
 func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http.Request) (interface{}, error) {
+	// TODO: Move the problem responses to a separate file as constants or a function.
 	logger := log.Ctx(r.Context())
 
 	if err := validateBodyType(r); err != nil {

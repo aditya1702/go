@@ -59,10 +59,6 @@ type GetLedgerByIDHandler struct {
 	LedgerState *ledger.State
 }
 
-func (handler GetLedgerByIDHandler) HttpStatus(resp interface{}) int {
-	return http.StatusOK
-}
-
 func (handler GetLedgerByIDHandler) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
 	qp := LedgerByIDQuery{}
 	err := getParams(&qp, r)

@@ -19,10 +19,6 @@ import (
 // GetLiquidityPoolByIDHandler is the action handler for all end-points returning a liquidity pool.
 type GetLiquidityPoolByIDHandler struct{}
 
-func (handler GetLiquidityPoolByIDHandler) HttpStatus(resp interface{}) int {
-	return http.StatusOK
-}
-
 // LiquidityPoolQuery query struct for liquidity_pools/id endpoint
 type LiquidityPoolQuery struct {
 	ID string `schema:"liquidity_pool_id" valid:"sha256"`

@@ -26,10 +26,6 @@ type GetTransactionByHashHandler struct {
 	SkipTxMeta bool
 }
 
-func (handler GetTransactionByHashHandler) HttpStatus(resp interface{}) int {
-	return http.StatusOK
-}
-
 // GetResource returns a transaction page.
 func (handler GetTransactionByHashHandler) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
 	ctx := r.Context()

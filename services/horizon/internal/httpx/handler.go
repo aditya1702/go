@@ -23,7 +23,10 @@ type objectAction interface {
 		w actions.HeaderWriter,
 		r *http.Request,
 	) (interface{}, error)
-	HttpStatus(resp interface{}) int
+}
+
+type HttpResponse interface {
+	GetStatus() int
 }
 
 type ObjectActionHandler struct {
@@ -42,7 +45,10 @@ func (handler ObjectActionHandler) ServeHTTP(
 			return
 		}
 
-		statusCode := handler.Action.HttpStatus(response)
+		statusCode := http.StatusOK
+		if httpResponse, ok := response.(HttpResponse); ok {
+			statusCode = httpResponse.GetStatus()
+		}
 		httpjson.RenderStatus(
 			w,
 			statusCode,

@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/stellar/go/protocols/horizon/base"
+	proto "github.com/stellar/go/protocols/stellarcore"
 	"github.com/stellar/go/strkey"
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/support/render/hal"
@@ -27,6 +29,13 @@ var KeyTypeNames = map[strkey.VersionByte]string{
 	strkey.VersionByteHashTx:        "preauth_tx",
 	strkey.VersionByteHashX:         "sha256_hash",
 	strkey.VersionByteSignedPayload: "ed25519_signed_payload",
+}
+
+var coreStatusToHTTPStatus = map[string]int{
+	proto.TXStatusPending:       http.StatusCreated,
+	proto.TXStatusDuplicate:     http.StatusConflict,
+	proto.TXStatusTryAgainLater: http.StatusServiceUnavailable,
+	proto.TXStatusError:         http.StatusBadRequest,
 }
 
 // Account is the summary of an account
@@ -581,6 +590,10 @@ type AsyncTransactionSubmissionResponse struct {
 	// Hash is a hash of the transaction which can be used to look up whether
 	// the transaction was included in the ledger.
 	Hash string `json:"hash"`
+}
+
+func (response AsyncTransactionSubmissionResponse) GetStatus() int {
+	return coreStatusToHTTPStatus[response.TxStatus]
 }
 
 // MarshalJSON implements a custom marshaler for Transaction.

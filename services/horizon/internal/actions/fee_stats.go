@@ -12,10 +12,6 @@ import (
 type FeeStatsHandler struct {
 }
 
-func (handler FeeStatsHandler) HttpStatus(resp interface{}) int {
-	return http.StatusOK
-}
-
 // GetResource fee stats resource
 func (handler FeeStatsHandler) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
 	feeStats := horizon.FeeStats{}

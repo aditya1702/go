@@ -136,10 +136,6 @@ type GetOperationByIDHandler struct {
 	SkipTxMeta  bool
 }
 
-func (handler GetOperationByIDHandler) HttpStatus(resp interface{}) int {
-	return http.StatusOK
-}
-
 // OperationQuery query struct for operation/id end-point
 type OperationQuery struct {
 	LedgerState *ledger.State `valid:"-"`

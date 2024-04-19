@@ -31,10 +31,6 @@ type SubmitTransactionHandler struct {
 	SkipTxMeta bool
 }
 
-func (handler SubmitTransactionHandler) HttpStatus(resp interface{}) int {
-	return http.StatusOK
-}
-
 type envelopeInfo struct {
 	hash      string
 	innerHash string

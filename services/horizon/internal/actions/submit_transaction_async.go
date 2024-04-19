@@ -13,13 +13,6 @@ import (
 	"github.com/stellar/go/xdr"
 )
 
-var coreStatusToHTTPStatus = map[string]int{
-	proto.TXStatusPending:       http.StatusCreated,
-	proto.TXStatusDuplicate:     http.StatusConflict,
-	proto.TXStatusTryAgainLater: http.StatusServiceUnavailable,
-	proto.TXStatusError:         http.StatusBadRequest,
-}
-
 type CoreClient interface {
 	SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (resp *proto.TXResponse, err error)
 }
@@ -29,14 +22,6 @@ type AsyncSubmitTransactionHandler struct {
 	DisableTxSub      bool
 	ClientWithMetrics CoreClient
 	CoreStateGetter
-}
-
-func (handler AsyncSubmitTransactionHandler) HttpStatus(resp interface{}) int {
-	statusCode := http.StatusOK
-	if asyncTxSubResponse, ok := resp.(horizon.AsyncTransactionSubmissionResponse); ok {
-		statusCode = coreStatusToHTTPStatus[asyncTxSubResponse.TxStatus]
-	}
-	return statusCode
 }
 
 func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http.Request) (interface{}, error) {

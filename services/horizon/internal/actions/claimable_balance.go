@@ -20,10 +20,6 @@ import (
 // GetClaimableBalanceByIDHandler is the action handler for all end-points returning a claimable balance.
 type GetClaimableBalanceByIDHandler struct{}
 
-func (handler GetClaimableBalanceByIDHandler) HttpStatus(resp interface{}) int {
-	return http.StatusOK
-}
-
 // ClaimableBalanceQuery query struct for claimables_balances/id end-point
 type ClaimableBalanceQuery struct {
 	ID string `schema:"id" valid:"claimableBalanceID,required"`

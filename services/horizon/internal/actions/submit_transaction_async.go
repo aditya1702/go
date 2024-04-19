@@ -72,6 +72,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 				"convenience.",
 			Extras: map[string]interface{}{
 				"envelope_xdr": raw,
+				"error":        err,
 			},
 		}
 	}

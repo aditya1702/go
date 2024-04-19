@@ -1,15 +1,16 @@
 package actions
 
 import (
+	"context"
 	"net/http"
 
-	"github.com/stellar/go/clients/stellarcore"
 	"github.com/stellar/go/protocols/horizon"
 	proto "github.com/stellar/go/protocols/stellarcore"
 	hProblem "github.com/stellar/go/services/horizon/internal/render/problem"
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/support/log"
 	"github.com/stellar/go/support/render/problem"
+	"github.com/stellar/go/xdr"
 )
 
 var coreStatusToHTTPStatus = map[string]int{
@@ -19,10 +20,14 @@ var coreStatusToHTTPStatus = map[string]int{
 	proto.TXStatusError:         http.StatusBadRequest,
 }
 
+type CoreClient interface {
+	SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (resp *proto.TXResponse, err error)
+}
+
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
-	ClientWithMetrics stellarcore.ClientWithMetrics
+	ClientWithMetrics CoreClient
 	CoreStateGetter
 }
 

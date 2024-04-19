@@ -10,11 +10,7 @@ import (
 	"github.com/stellar/go/xdr"
 )
 
-type ClientWithMetrics interface {
-	SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (resp *proto.TXResponse, err error)
-}
-
-type clientWithMetrics struct {
+type ClientWithMetrics struct {
 	CoreClient Client
 
 	TxSubMetrics struct {
@@ -24,7 +20,7 @@ type clientWithMetrics struct {
 	}
 }
 
-func (c *clientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (*proto.TXResponse, error) {
+func (c ClientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (*proto.TXResponse, error) {
 	startTime := time.Now()
 	response, err := c.CoreClient.SubmitTransaction(ctx, rawTx)
 	c.updateTxSubMetrics(time.Since(startTime).Seconds(), envelope, response, err)
@@ -32,7 +28,7 @@ func (c *clientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string,
 	return response, err
 }
 
-func (c *clientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
+func (c ClientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
 	label := prometheus.Labels{}
 	if err != nil {
 		label["status"] = "request_error"
@@ -67,7 +63,7 @@ func NewClientWithMetrics(client Client, registry *prometheus.Registry, promethe
 		submissionDuration,
 	)
 
-	return &clientWithMetrics{
+	return ClientWithMetrics{
 		CoreClient: client,
 		TxSubMetrics: struct {
 			SubmissionDuration *prometheus.SummaryVec

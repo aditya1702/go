@@ -54,7 +54,7 @@ type RouterConfig struct {
 	HealthCheck             http.Handler
 	DisableTxSub            bool
 	SkipTxMeta              bool
-	StellarCoreURL           string
+	StellarCoreURL          string
 }
 
 type Router struct {

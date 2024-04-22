@@ -8,20 +8,22 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/protocols/horizon"
 	"github.com/stellar/go/services/horizon/internal/test/integration"
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/txnbuild"
 )
 
-func getTransaction(t *testing.T, itest *integration.Test, hash string) error {
+func getTransaction(client *horizonclient.Client, hash string) error {
 	for i := 0; i < 60; i++ {
-		_, err := itest.Client().TransactionDetail(hash)
-		if assert.NoError(t, err) {
-			return nil
+		_, err := client.TransactionDetail(hash)
+		if err != nil {
+			time.Sleep(time.Second)
+			continue
 		}
 
-		time.Sleep(time.Second)
+		return nil
 	}
 	return errors.New("transaction not found")
 }
@@ -55,7 +57,7 @@ func TestAsyncTxSub_SuccessfulSubmission(t *testing.T) {
 		Hash:     "6cbb7f714bd08cea7c30cab7818a35c510cbbfc0a6aa06172a1e94146ecf0165",
 	})
 
-	err = getTransaction(t, itest, txResp.Hash)
+	err = getTransaction(itest.Client(), txResp.Hash)
 	assert.NoError(t, err)
 }
 

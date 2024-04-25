@@ -10,6 +10,12 @@ import (
 	"github.com/stellar/go/xdr"
 )
 
+var envelopeTypeToLabel = map[xdr.EnvelopeType]string{
+	xdr.EnvelopeTypeEnvelopeTypeTxV0:      "v0",
+	xdr.EnvelopeTypeEnvelopeTypeTx:        "v1",
+	xdr.EnvelopeTypeEnvelopeTypeTxFeeBump: "fee_bump",
+}
+
 type ClientWithMetrics struct {
 	coreClient Client
 
@@ -27,12 +33,8 @@ func (c ClientWithMetrics) SubmitTx(ctx context.Context, rawTx string) (*proto.T
 
 	startTime := time.Now()
 	response, err := c.coreClient.SubmitTransaction(ctx, rawTx)
-	c.updateTxSubMetrics(time.Since(startTime).Seconds(), envelope, response, err)
+	duration := time.Since(startTime).Seconds()
 
-	return response, err
-}
-
-func (c ClientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.TransactionEnvelope, response *proto.TXResponse, err error) {
 	label := prometheus.Labels{}
 	if err != nil {
 		label["status"] = "request_error"
@@ -42,16 +44,10 @@ func (c ClientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.Tra
 		label["status"] = response.Status
 	}
 
-	switch envelope.Type {
-	case xdr.EnvelopeTypeEnvelopeTypeTxV0:
-		label["envelope_type"] = "v0"
-	case xdr.EnvelopeTypeEnvelopeTypeTx:
-		label["envelope_type"] = "v1"
-	case xdr.EnvelopeTypeEnvelopeTypeTxFeeBump:
-		label["envelope_type"] = "fee-bump"
-	}
-
+	label["envelope_type"] = envelopeTypeToLabel[envelope.Type]
 	c.submissionDuration.With(label).Observe(duration)
+
+	return response, err
 }
 
 func NewClientWithMetrics(client Client, registry *prometheus.Registry, prometheusSubsystem string) ClientWithMetrics {

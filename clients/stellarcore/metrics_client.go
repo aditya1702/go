@@ -11,18 +11,16 @@ import (
 )
 
 type ClientWithMetrics struct {
-	CoreClient Client
+	coreClient Client
 
-	TxSubMetrics struct {
-		// SubmissionDuration exposes timing metrics about the rate and latency of
-		// submissions to stellar-core
-		SubmissionDuration *prometheus.SummaryVec
-	}
+	// submissionDuration exposes timing metrics about the rate and latency of
+	// submissions to stellar-core
+	submissionDuration *prometheus.SummaryVec
 }
 
 func (c ClientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (*proto.TXResponse, error) {
 	startTime := time.Now()
-	response, err := c.CoreClient.SubmitTransaction(ctx, rawTx)
+	response, err := c.coreClient.SubmitTransaction(ctx, rawTx)
 	c.updateTxSubMetrics(time.Since(startTime).Seconds(), envelope, response, err)
 
 	return response, err
@@ -47,7 +45,7 @@ func (c ClientWithMetrics) updateTxSubMetrics(duration float64, envelope xdr.Tra
 		label["envelope_type"] = "fee-bump"
 	}
 
-	c.TxSubMetrics.SubmissionDuration.With(label).Observe(duration)
+	c.submissionDuration.With(label).Observe(duration)
 }
 
 func NewClientWithMetrics(client Client, registry *prometheus.Registry, prometheusSubsystem string) ClientWithMetrics {
@@ -64,11 +62,7 @@ func NewClientWithMetrics(client Client, registry *prometheus.Registry, promethe
 	)
 
 	return ClientWithMetrics{
-		CoreClient: client,
-		TxSubMetrics: struct {
-			SubmissionDuration *prometheus.SummaryVec
-		}{
-			SubmissionDuration: submissionDuration,
-		},
+		coreClient:         client,
+		submissionDuration: submissionDuration,
 	}
 }

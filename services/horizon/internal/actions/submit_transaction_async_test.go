@@ -62,7 +62,7 @@ func TestAsyncSubmitTransactionHandler_DisabledTxSub(t *testing.T) {
 	assert.IsType(t, &problem.P{}, err)
 	p := err.(*problem.P)
 	assert.Equal(t, "transaction_submission_disabled", p.Type)
-	assert.Equal(t, http.StatusMethodNotAllowed, p.Status)
+	assert.Equal(t, http.StatusForbidden, p.Status)
 }
 
 func TestAsyncSubmitTransactionHandler_MalformedTransaction(t *testing.T) {

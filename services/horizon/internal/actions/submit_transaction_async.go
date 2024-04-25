@@ -10,11 +10,10 @@ import (
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/support/log"
 	"github.com/stellar/go/support/render/problem"
-	"github.com/stellar/go/xdr"
 )
 
 type CoreClient interface {
-	SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (resp *proto.TXResponse, err error)
+	SubmitTx(ctx context.Context, rawTx string) (resp *proto.TXResponse, err error)
 }
 
 type AsyncSubmitTransactionHandler struct {
@@ -73,7 +72,7 @@ func (handler AsyncSubmitTransactionHandler) GetResource(_ HeaderWriter, r *http
 		return nil, hProblem.StaleHistory
 	}
 
-	resp, err := handler.ClientWithMetrics.SubmitTransaction(r.Context(), info.raw, info.parsed)
+	resp, err := handler.ClientWithMetrics.SubmitTx(r.Context(), raw)
 	if err != nil {
 		return nil, &problem.P{
 			Type:   "transaction_submission_failed",

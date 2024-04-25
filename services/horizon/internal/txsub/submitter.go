@@ -2,10 +2,12 @@ package txsub
 
 import (
 	"context"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/stellar/go/xdr"
 	"net/http"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/stellar/go/xdr"
 
 	"github.com/stellar/go/clients/stellarcore"
 	proto "github.com/stellar/go/protocols/stellarcore"
@@ -46,7 +48,7 @@ func (sub *submitter) Submit(ctx context.Context, rawTx string, envelope xdr.Tra
 		}).Info("Submitter result")
 	}()
 
-	cresp, err := sub.StellarCore.SubmitTransaction(ctx, rawTx, envelope)
+	cresp, err := sub.StellarCore.SubmitTx(ctx, rawTx)
 	if err != nil {
 		result.Err = errors.Wrap(err, "failed to submit")
 		return

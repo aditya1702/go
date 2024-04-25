@@ -18,7 +18,13 @@ type ClientWithMetrics struct {
 	submissionDuration *prometheus.SummaryVec
 }
 
-func (c ClientWithMetrics) SubmitTransaction(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (*proto.TXResponse, error) {
+func (c ClientWithMetrics) SubmitTx(ctx context.Context, rawTx string) (*proto.TXResponse, error) {
+	var envelope xdr.TransactionEnvelope
+	err := xdr.SafeUnmarshalBase64(rawTx, &envelope)
+	if err != nil {
+		return &proto.TXResponse{}, err
+	}
+
 	startTime := time.Now()
 	response, err := c.coreClient.SubmitTransaction(ctx, rawTx)
 	c.updateTxSubMetrics(time.Since(startTime).Seconds(), envelope, response, err)

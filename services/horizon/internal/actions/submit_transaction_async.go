@@ -12,14 +12,14 @@ import (
 	"github.com/stellar/go/support/render/problem"
 )
 
-type CoreClient interface {
+type coreClient interface {
 	SubmitTx(ctx context.Context, rawTx string) (resp *proto.TXResponse, err error)
 }
 
 type AsyncSubmitTransactionHandler struct {
 	NetworkPassphrase string
 	DisableTxSub      bool
-	ClientWithMetrics CoreClient
+	ClientWithMetrics coreClient
 	CoreStateGetter
 }
 

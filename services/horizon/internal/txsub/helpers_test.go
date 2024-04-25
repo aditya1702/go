@@ -9,7 +9,6 @@ package txsub
 import (
 	"context"
 	"database/sql"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stellar/go/services/horizon/internal/ledger"
 

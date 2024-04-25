@@ -11,10 +11,12 @@ import (
 	"database/sql"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/stellar/go/services/horizon/internal/ledger"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/stellar/go/services/horizon/internal/db2/history"
-	"github.com/stellar/go/services/horizon/internal/ledger"
 )
 
 // MockSubmitter is a test helper that simplements the Submitter interface

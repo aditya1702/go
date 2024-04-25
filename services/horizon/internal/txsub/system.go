@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/stellar/go/services/horizon/internal/ledger"
 	"sync"
 	"time"
 
+	"github.com/stellar/go/services/horizon/internal/ledger"
+
 	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/stellar/go/services/horizon/internal/db2/history"
 	"github.com/stellar/go/support/log"
 	"github.com/stellar/go/xdr"
@@ -109,7 +111,7 @@ func (sys *System) Submit(
 		return
 	}
 
-	sr := sys.submitOnce(ctx, rawTx, envelope)
+	sr := sys.submitOnce(ctx, rawTx)
 
 	if sr.Err != nil {
 		// any error other than "txBAD_SEQ" is a failure
@@ -201,9 +203,9 @@ func (sys *System) deriveTxSubError(ctx context.Context) error {
 
 // Submit submits the provided base64 encoded transaction envelope to the
 // network using this submission system.
-func (sys *System) submitOnce(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) SubmissionResult {
+func (sys *System) submitOnce(ctx context.Context, rawTx string) SubmissionResult {
 	// submit to stellar-core
-	sr := sys.Submitter.Submit(ctx, rawTx, envelope)
+	sr := sys.Submitter.Submit(ctx, rawTx)
 
 	if sr.Err == nil {
 		sys.Metrics.SuccessfulSubmissionsCounter.Inc()

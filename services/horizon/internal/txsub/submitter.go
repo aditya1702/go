@@ -7,8 +7,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/stellar/go/xdr"
-
 	"github.com/stellar/go/clients/stellarcore"
 	proto "github.com/stellar/go/protocols/stellarcore"
 	"github.com/stellar/go/support/errors"
@@ -38,7 +36,7 @@ type submitter struct {
 
 // Submit sends the provided envelope to stellar-core and parses the response into
 // a SubmissionResult
-func (sub *submitter) Submit(ctx context.Context, rawTx string, envelope xdr.TransactionEnvelope) (result SubmissionResult) {
+func (sub *submitter) Submit(ctx context.Context, rawTx string) (result SubmissionResult) {
 	start := time.Now()
 	defer func() {
 		result.Duration = time.Since(start)

@@ -8,7 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	stellarcore "github.com/stellar/go/clients/stellarcore"
+	"github.com/stretchr/testify/mock"
+
 	"github.com/stellar/go/protocols/horizon"
 
 	"github.com/stretchr/testify/assert"
@@ -24,6 +25,16 @@ const (
 	TxXDR  = "AAAAAAGUcmKO5465JxTSLQOQljwk2SfqAJmZSG6JH6wtqpwhAAABLAAAAAAAAAABAAAAAAAAAAEAAAALaGVsbG8gd29ybGQAAAAAAwAAAAAAAAAAAAAAABbxCy3mLg3hiTqX4VUEEp60pFOrJNxYM1JtxXTwXhY2AAAAAAvrwgAAAAAAAAAAAQAAAAAW8Qst5i4N4Yk6l+FVBBKetKRTqyTcWDNSbcV08F4WNgAAAAAN4Lazj4x61AAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABLaqcIQAAAEBKwqWy3TaOxoGnfm9eUjfTRBvPf34dvDA0Nf+B8z4zBob90UXtuCqmQqwMCyH+okOI3c05br3khkH0yP4kCwcE"
 	TxHash = "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889"
 )
+
+type MockClientWithMetrics struct {
+	mock.Mock
+}
+
+// SubmitTx mocks the SubmitTransaction method
+func (m *MockClientWithMetrics) SubmitTx(ctx context.Context, rawTx string) (*proto.TXResponse, error) {
+	args := m.Called(ctx, rawTx)
+	return args.Get(0).(*proto.TXResponse), args.Error(1)
+}
 
 func createRequest() *http.Request {
 	form := url.Values{}
@@ -91,11 +102,8 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionFailed(t *testing.T)
 	coreStateGetter := new(coreStateGetterMock)
 	coreStateGetter.On("GetCoreState").Return(corestate.State{Synced: true})
 
-	info, err := extractEnvelopeInfo(TxXDR, network.TestNetworkPassphrase)
-	assert.NoError(t, err)
-
-	MockClientWithMetrics := &stellarcore.MockClientWithMetrics{}
-	MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR, info.parsed).Return(&proto.TXResponse{}, errors.Errorf("submission error"))
+	MockClientWithMetrics := &MockClientWithMetrics{}
+	MockClientWithMetrics.On("SubmitTx", context.Background(), TxXDR).Return(&proto.TXResponse{}, errors.Errorf("submission error"))
 
 	handler := AsyncSubmitTransactionHandler{
 		CoreStateGetter:   coreStateGetter,
@@ -106,7 +114,7 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionFailed(t *testing.T)
 	request := createRequest()
 	w := httptest.NewRecorder()
 
-	_, err = handler.GetResource(w, request)
+	_, err := handler.GetResource(w, request)
 	assert.NotNil(t, err)
 	assert.IsType(t, &problem.P{}, err)
 	p := err.(*problem.P)
@@ -118,11 +126,8 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionException(t *testing
 	coreStateGetter := new(coreStateGetterMock)
 	coreStateGetter.On("GetCoreState").Return(corestate.State{Synced: true})
 
-	info, err := extractEnvelopeInfo(TxXDR, network.TestNetworkPassphrase)
-	assert.NoError(t, err)
-
-	MockClientWithMetrics := &stellarcore.MockClientWithMetrics{}
-	MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR, info.parsed).Return(&proto.TXResponse{
+	MockClientWithMetrics := &MockClientWithMetrics{}
+	MockClientWithMetrics.On("SubmitTx", context.Background(), TxXDR).Return(&proto.TXResponse{
 		Exception: "some-exception",
 	}, nil)
 
@@ -135,7 +140,7 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionException(t *testing
 	request := createRequest()
 	w := httptest.NewRecorder()
 
-	_, err = handler.GetResource(w, request)
+	_, err := handler.GetResource(w, request)
 	assert.NotNil(t, err)
 	assert.IsType(t, &problem.P{}, err)
 	p := err.(*problem.P)
@@ -146,9 +151,6 @@ func TestAsyncSubmitTransactionHandler_TransactionSubmissionException(t *testing
 func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 	coreStateGetter := new(coreStateGetterMock)
 	coreStateGetter.On("GetCoreState").Return(corestate.State{Synced: true})
-
-	info, err := extractEnvelopeInfo(TxXDR, network.TestNetworkPassphrase)
-	assert.NoError(t, err)
 
 	successCases := []struct {
 		mockCoreResponse *proto.TXResponse
@@ -197,8 +199,8 @@ func TestAsyncSubmitTransactionHandler_TransactionStatusResponse(t *testing.T) {
 	}
 
 	for _, testCase := range successCases {
-		MockClientWithMetrics := &stellarcore.MockClientWithMetrics{}
-		MockClientWithMetrics.On("SubmitTransaction", context.Background(), TxXDR, info.parsed).Return(testCase.mockCoreResponse, nil)
+		MockClientWithMetrics := &MockClientWithMetrics{}
+		MockClientWithMetrics.On("SubmitTx", context.Background(), TxXDR).Return(testCase.mockCoreResponse, nil)
 
 		handler := AsyncSubmitTransactionHandler{
 			NetworkPassphrase: network.PublicNetworkPassphrase,

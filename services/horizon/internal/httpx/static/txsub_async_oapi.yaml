@@ -67,7 +67,7 @@ paths:
                   value:
                     type: "transaction_submission_disabled"
                     title: "Transaction Submission Disabled"
-                    status: 405
+                    status: 403
                     detail: "Transaction submission has been disabled for Horizon. To enable it again, remove env variable DISABLE_TX_SUB."
                     extras:
                       envelope_xdr: ""

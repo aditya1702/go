@@ -148,7 +148,7 @@ func (handler SubmitTransactionHandler) GetResource(w HeaderWriter, r *http.Requ
 		return nil, &problem.P{
 			Type:   "transaction_submission_disabled",
 			Title:  "Transaction Submission Disabled",
-			Status: http.StatusMethodNotAllowed,
+			Status: http.StatusForbidden,
 			Detail: "Transaction submission has been disabled for Horizon. " +
 				"To enable it again, remove env variable DISABLE_TX_SUB.",
 			Extras: map[string]interface{}{},

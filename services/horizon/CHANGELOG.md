@@ -5,6 +5,8 @@ file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 2.31.0
 
+As part of Protocol 21, if you are using a custom captive-core config, make sure to set `EXPERIMENTAL_BUCKETLIST_DB=true` there along with `CAPTIVE_CORE_USE_DB=true` in the Horizon config. If you are setting `CAPTIVE_CORE_USE_DB=false`, ensure the bucketlist parameter to false too.
+
 ### Breaking Changes
 
 - Change ingestion filtering logic to store transactions if any filter matches on it. ([5303](https://github.com/stellar/go/pull/5303))

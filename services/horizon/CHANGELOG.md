@@ -5,7 +5,7 @@ file. This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 2.31.0
 
-As part of Protocol 21, if you are using a custom captive-core config, make sure to set `EXPERIMENTAL_BUCKETLIST_DB=true` there along with `CAPTIVE_CORE_USE_DB=true` in the Horizon config. If you are setting `CAPTIVE_CORE_USE_DB=false`, ensure the bucketlist parameter to false too.
+If you are using a custom captive-core config and setting Horizon `CAPTIVE_CORE_USE_DB=false`, then need to make sure to set `EXPERIMENTAL_BUCKETLIST_DB=false` in the captive core config toml to be compatible with stellar-core versions 21 and earlier
 
 ### Breaking Changes
 

@@ -20,8 +20,6 @@ file. This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Clean up duplicate captive-core default config files ([5293](https://github.com/stellar/go/pull/5293))
-- Remove internal API reference in the docs ([5336](https://github.com/stellar/go/pull/5336))
-- Updated documentation guide for developers ([5337](https://github.com/stellar/go/pull/5337))
 
 ## 2.30.0
 

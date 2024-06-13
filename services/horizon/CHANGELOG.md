@@ -16,10 +16,11 @@ file. This project adheres to [Semantic Versioning](http://semver.org/).
 - Add new async transaction submission endpoint ([5188](https://github.com/stellar/go/pull/5188))
 - Add `horizon_ingest_errors_total` metric key ([5302](https://github.com/stellar/go/pull/5302))
 - Add transaction hash to txsub timeout response ([5328](https://github.com/stellar/go/pull/5328))
+- Add new captive-core flags for V1 Meta ([5309](https://github.com/stellar/go/pull/5309))
 
 ### Fixed
 
-- Clean up duplicate captive-core default config files ([5293](https://github.com/stellar/go/pull/5293))
+- Fix the following ingestion error: `error preparing range: error starting prepare range: the previous Stellar-Core instance is still running` ([5307](https://github.com/stellar/go/pull/5307))
 
 ## 2.30.0
 

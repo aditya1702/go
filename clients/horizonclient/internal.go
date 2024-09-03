@@ -67,7 +67,8 @@ func decodeAsyncTxSubResponse(resp *http.Response, object interface{}) error {
 	}
 
 	// The first decoder converts the response to AsyncTransactionSubmissionResponse and checks
-	// the hash of the transaction. If the response was not a valid one, the hash will be empty.
+	// the hash of the transaction. If the response was not a valid AsyncTransactionSubmissionResponse object,
+	// the hash of the converted object will be empty.
 	decoder1 := json.NewDecoder(bytes.NewReader(bodyBytes))
 	err = decoder1.Decode(&object)
 	if err != nil {

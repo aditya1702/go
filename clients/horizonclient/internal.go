@@ -69,8 +69,8 @@ func decodeAsyncTxSubResponse(resp *http.Response, object interface{}) error {
 	// The first decoder converts the response to AsyncTransactionSubmissionResponse and checks
 	// the hash of the transaction. If the response was not a valid AsyncTransactionSubmissionResponse object,
 	// the hash of the converted object will be empty.
-	decoder1 := json.NewDecoder(bytes.NewReader(bodyBytes))
-	err = decoder1.Decode(&object)
+	asyncRespDecoder := json.NewDecoder(bytes.NewReader(bodyBytes))
+	err = asyncRespDecoder.Decode(&object)
 	if err != nil {
 		return errors.Wrap(err, "error decoding response")
 	}
@@ -79,15 +79,15 @@ func decodeAsyncTxSubResponse(resp *http.Response, object interface{}) error {
 	}
 
 	// Create a new reader for the second decoding. The second decoder decodes to Horizon.Problem object.
-	decoder2 := json.NewDecoder(bytes.NewReader(bodyBytes))
-	horizonErr := Error{
+	errorDecoder := json.NewDecoder(bytes.NewReader(bodyBytes))
+	horizonError := Error{
 		Response: resp,
 	}
-	err = decoder2.Decode(&horizonErr.Problem)
+	err = errorDecoder.Decode(&horizonError.Problem)
 	if err != nil {
 		return errors.Wrap(err, "error decoding horizon error")
 	}
-	return horizonErr
+	return horizonError
 }
 
 // countParams counts the number of parameters provided

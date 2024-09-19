@@ -70,8 +70,8 @@ func decodeAsyncTxSubResponse(resp *http.Response, object interface{}) error {
 	// the hash of the transaction. If the response was not a valid AsyncTransactionSubmissionResponse object,
 	// the hash of the converted object will be empty.
 	asyncRespDecoder := json.NewDecoder(bytes.NewReader(bodyBytes))
-	asyncRespDecoder.Decode(&object)
-	if asyncResp, ok := object.(*horizon.AsyncTransactionSubmissionResponse); ok && asyncResp.Hash != "" {
+	err = asyncRespDecoder.Decode(&object)
+	if asyncResp, ok := object.(*horizon.AsyncTransactionSubmissionResponse); err != nil && ok && asyncResp.Hash != "" {
 		return nil
 	}
 

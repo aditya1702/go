@@ -76,11 +76,11 @@ func decodeAsyncTxSubResponse(resp *http.Response, object interface{}) error {
 	}
 
 	// Create a new reader for the second decoding. The second decoder decodes to Horizon.Problem object.
-	errorDecoder := json.NewDecoder(bytes.NewReader(bodyBytes))
+	problemDecoder := json.NewDecoder(bytes.NewReader(bodyBytes))
 	horizonError := Error{
 		Response: resp,
 	}
-	err = errorDecoder.Decode(&horizonError.Problem)
+	err = problemDecoder.Decode(&horizonError.Problem)
 	if err != nil {
 		return errors.Wrap(err, "error decoding horizon error")
 	}
